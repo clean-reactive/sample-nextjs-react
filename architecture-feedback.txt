@@ -1,0 +1,130 @@
+Architecture Feedback
+=====================
+
+Project: clean-reactive-architecture-react-nextjs
+Reviewed against: documentation/docs/architecture.md, documentation/docs/methodology.md
+Date: 2026-07-26
+
+TLDR: The architecture is coherent and this repo demonstrates its strongest
+claims convincingly. Two deviations from its own doctrine remain (one of
+which produces a verified behavioral inconsistency); a third initially
+reported item (toast handling) turned out on review to be architecturally
+sound, with only a minor boundary cost noted.
+
+
+WHAT GENUINELY WORKS
+--------------------
+
+- One core, three real drivers. The bff / api / e2e adapter sets against the
+  same generic use cases are the best evidence in the repo that the
+  architecture delivers what it promises. The test harness as a first-class
+  driver (not a fixture) is the standout idea.
+
+- Interfaces extracted from consumers, everywhere. `*.types.ts` beside the UI
+  that owns them, ports defined in src/application and implemented outward —
+  the DIP is structural, not aspirational. The typed DI container plus
+  TestBed.override() makes the seams cheap to use.
+
+- Reducers as application business entities. The view -> bulk -> updating
+  machine rejecting invalid transitions inside the reducer is exactly the
+  "state with validity rules" concept from the docs, realized cleanly.
+
+
+WHERE THE CODE CONTRADICTS ITS OWN ARCHITECTURE
+-----------------------------------------------
+
+1. Substituting the gateway changes observable behavior — the LSP claim
+   breaks where it matters most.
+
+   In bulkUpdateUseCase (src/application/use-cases/todos/bulk-update.use-case.ts,
+   ~line 98), a failed toggle is caught inside the transaction callback,
+   logged, and answered with mainTx.rollback(); `toggled` stays undefined and
+   the function falls through to presenter(toggledTodos ?? []). The outcome
+   depends on the backend (both verified):
+
+   - sqlite: Drizzle's tx.rollback() throws, the outer catch wraps it as
+     UnknownError, the user sees "unexpected error".
+   - in-file: rollback is a literal no-op (() => {}), so nothing throws,
+     deletes still execute, already-applied toggles stay persisted, and the
+     presenter returns SUCCESS — the user sees "Bulk update completed!" for a
+     partially failed, partially persisted operation.
+
+   Two implementations of ITransactionManagerService produce different
+   user-visible outcomes for the same input. It also means the `not_found`
+   branch in the BFF presenter and the client's toast map is dead code for
+   the toggle path — a NotFoundError from a toggle can never reach it.
+
+   Recommended fix: let the error propagate out of the transaction callback
+   and map it in the outer catch. This is the one item that is a bug rather
+   than a design choice.
+
+2. Toast notifications: an entity held by a library, with a projection cost
+   at the call site. (Revised — originally reported as a violation; it is
+   not.)
+
+   Initial reading: controllers calling toast.error() put presentation output
+   on the input path. That reading was wrong under the architecture's own
+   definitions. Sonner's toast() writes to an external store that the
+   <Toaster /> UI unit observes — so the runtime shape is controller ->
+   transition on a notification entity -> UI observes. Unidirectional flow is
+   preserved; the controller never touches the UI. The sonner store qualifies
+   as an application business entity per the docs (state with its own
+   validity rules and lifetime: stacking, auto-dismiss, dismissal
+   transitions, observable independently of any operation), and the docs
+   state that units are conceptual — a library can hold one. Likewise, the
+   feature reducer holding no error state is defensible: the error here is a
+   transient notification whose lifetime is owned by the notification entity,
+   not persistent feature state other units react to.
+
+   What remains is a boundary cost, not a finding: sonner's entity contract
+   accepts only display-ready strings, so the projection step (failure code
+   -> user-facing copy) must run before the write — hence the message
+   catalogs in controllers. The failure code is flattened into copy at
+   dispatch time and is unavailable as observable state afterwards. This
+   matters only if a later need appears for i18n, failure telemetry, or
+   another unit reacting to operation failures; at that point, a thin
+   notification interface accepting typed events (composing copy internally)
+   would restore the separation. Not warranted at the current size.
+
+3. Client-side DIP is nominal.
+
+   gateway.types.ts declares the contracts, but controllers import the
+   concrete server actions directly (e.g. `import { bulkUpdateAction } from
+   '../actions/...'`). Unlike the server core, there is no substitution seam —
+   the interface exists as a type but nothing consumes it as an injection
+   point, so testing a controller requires module mocking. Either inject the
+   gateway (context or hook dependencies, which the hooks already use for
+   state/dispatch) or document this as a deliberate simplification.
+
+
+STRUCTURAL TRADE-OFFS WORTH ACKNOWLEDGING
+-----------------------------------------
+
+- The ceremony is real, and the repo only shows the end state. Roughly nine
+  files per operation across drivers, with many pass-through controllers
+  (bulkUpdateBffController only repackages arguments). The methodology's own
+  answer — start inlined, decompose through continuous refactoring — is
+  invisible here because every feature arrives fully decomposed. Defensible
+  for a reference implementation, but it undercuts the methodology's
+  pragmatism; a "when is the contract/controller/presenter triple worth it"
+  note would help adopters.
+
+- The RSC template path is outside the documented model. Server-rendered
+  todos flow around the client entities as props, and revalidatePath forms a
+  feedback loop (gateway -> server -> template re-render) that appears in no
+  diagram. It is a good pragmatic design — client entities hold only
+  interaction state — but it is an invention this implementation added, and
+  the presenter consequently depends on entities plus template data.
+  Documented in ARCHITECTURE.md; the methodology docs should own it too.
+
+- The scaling claims are untested by this example. The extended units
+  (Selector, Transaction, Effect) never appear — the app is too small to need
+  them — and RepositoryE2EDriver was dead code until the comparison bug was
+  fixed, which signals that path never had a consumer.
+
+- Housekeeping: the failure-code taxonomy is re-declared in three places per
+  operation (drift risk — note UnauthorizedError is deliberately masked as
+  unexpected_error, which deserves a comment), and build artifacts
+  (tests/coverage/, test-results/, *.local.db, tsconfig.tsbuildinfo) are
+  sitting in the tree — worth gitignoring, especially since the folder is not
+  a git repository yet.
