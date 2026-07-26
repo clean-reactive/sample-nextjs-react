@@ -1,6 +1,6 @@
 import type { Dispatch } from 'react';
-import { makeSignUpPageGateway } from '../../gateway';
-import type { SignUpPageEntity, SignUpPageEvent } from '../../reducer';
+import { makeSignUpPageGateway } from '../gateway';
+import type { SignUpPageEntity, SignUpPageEvent } from '../reducer';
 
 export type AppUseCase<T> = (params: T) => Promise<void>;
 

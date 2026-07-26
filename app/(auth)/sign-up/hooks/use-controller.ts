@@ -1,5 +1,5 @@
 import type { Dispatch, FormEvent } from 'react';
-import { useSignUpUseCase } from './use-sign-up-use-case/use-sign-up-use-case';
+import { useSignUpUseCase } from './use-sign-up-use-case';
 import type { SignUpPageEntity, SignUpPageEvent } from '../reducer';
 import type { SignUpPageController } from '../page.types';
 

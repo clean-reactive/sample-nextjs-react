@@ -12,13 +12,10 @@ import {
 } from 'vitest';
 
 import { useController } from './use-controller';
-import {
-  AppUseCase,
-  useSignUpUseCase,
-} from './use-sign-up-use-case/use-sign-up-use-case';
+import { AppUseCase, useSignUpUseCase } from './use-sign-up-use-case';
 import type { SignUpPageEntity, SignUpPageEvent } from '../reducer';
 
-vi.mock('./use-sign-up-use-case/use-sign-up-use-case', () => {
+vi.mock('./use-sign-up-use-case', () => {
   const signUpUseCaseExecutorMock: MockedFunction<AppUseCase<FormData>> =
     vi.fn();
   const useSignUpUseCaseMock = () => signUpUseCaseExecutorMock;
