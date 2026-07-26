@@ -1,0 +1,136 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "plugins": ["boundaries"],
+  "settings": {
+    "boundaries/include": ["src/**/*", "app/**/*", "di/**/*"],
+    "boundaries/elements": [
+      {
+        "mode": "full",
+        "type": "web",
+        "pattern": ["app/**/*"]
+      },
+      {
+        "mode": "full",
+        "type": "api",
+        "pattern": ["src/interface-adapters/api/**/*"]
+      },
+      {
+        "mode": "full",
+        "type": "bff",
+        "pattern": ["src/interface-adapters/bff/**/*"]
+      },
+      {
+        "mode": "full",
+        "type": "e2e",
+        "pattern": ["src/interface-adapters/e2e/**/*"]
+      },
+      {
+        "mode": "full",
+        "type": "use-cases",
+        "pattern": ["src/application/use-cases/**/*"]
+      },
+      {
+        "mode": "full",
+        "type": "service-interfaces",
+        "pattern": ["src/application/services/**/*"]
+      },
+      {
+        "mode": "full",
+        "type": "repository-interfaces",
+        "pattern": ["src/application/repositories/**/*"]
+      },
+      {
+        "mode": "full",
+        "type": "entities",
+        "pattern": ["src/entities/**/*"]
+      },
+      {
+        "mode": "full",
+        "type": "infrastructure",
+        "pattern": ["src/infrastructure/**/*"]
+      },
+      {
+        "mode": "full",
+        "type": "di",
+        "pattern": ["di/**/*"]
+      },
+      {
+        "mode": "full",
+        "type": "types",
+        "pattern": ["src/types/**/*"]
+      }
+    ]
+  },
+  "rules": {
+    "boundaries/no-unknown": "error",
+    "boundaries/no-unknown-files": "error",
+    "boundaries/element-types": [
+      "error",
+      {
+        "default": "disallow",
+        "rules": [
+          {
+            "from": "web",
+            "allow": ["web", "entities", "di"]
+          },
+          {
+            "from": "api",
+            "allow": [
+              "api",
+              "entities",
+              "service-interfaces",
+              "repository-interfaces",
+              "use-cases"
+            ]
+          },
+          {
+            "from": "bff",
+            "allow": ["bff", "web", "entities", "types", "use-cases"]
+          },
+          {
+            "from": "e2e",
+            "allow": ["e2e", "bff", "entities", "types", "use-cases"]
+          },
+          {
+            "from": "infrastructure",
+            "allow": ["service-interfaces", "repository-interfaces", "entities"]
+          },
+          {
+            "from": "use-cases",
+            "allow": [
+              "entities",
+              "service-interfaces",
+              "repository-interfaces",
+              "types"
+            ]
+          },
+          {
+            "from": "service-interfaces",
+            "allow": ["entities"]
+          },
+          {
+            "from": "repository-interfaces",
+            "allow": ["entities"]
+          },
+          {
+            "from": "entities",
+            "allow": ["entities"]
+          },
+          {
+            "from": "di",
+            "allow": [
+              "di",
+              "api",
+              "bff",
+              "e2e",
+              "service-interfaces",
+              "repository-interfaces",
+              "use-cases",
+              "infrastructure"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
