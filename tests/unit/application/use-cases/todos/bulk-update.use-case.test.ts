@@ -36,7 +36,7 @@ type Context = {
   todosRepository: Mocked<ITodosRepository>;
   authenticationService: Mocked<IAuthenticationService>;
   transactionManagerService: Mocked<ITransactionManagerService> & {
-    tx: Mocked<ITransaction>;
+    tx: ITransaction;
   };
   user: User;
   session: Session;

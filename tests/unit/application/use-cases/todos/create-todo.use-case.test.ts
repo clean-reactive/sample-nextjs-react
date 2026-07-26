@@ -28,9 +28,7 @@ type Context = {
   useCase: UseCase;
   todosRepository: Mocked<ITodosRepository>;
   authenticationService: Mocked<IAuthenticationService>;
-  transactionManagerService: Mocked<ITransactionManagerService> & {
-    tx: Mocked<ITransaction>;
-  };
+  transactionManagerService: Mocked<ITransactionManagerService>;
   user: User;
   session: Session;
 };
@@ -118,14 +116,12 @@ describe(`${createTodoUseCase.name}`, () => {
     expect(ctx.todosRepository.createTodo).toHaveBeenCalledTimes(3);
   });
 
-  it<Context>('rolls back and returns an empty array when creating a todo fails', async (ctx) => {
+  it<Context>('reports the failure when creating a todo fails', async (ctx) => {
     ctx.todosRepository.createTodo.mockRejectedValue(new Error('boom'));
 
     await expect(
       ctx.useCase({ sessionId: ctx.session.id, todo: 'todo-one' })
-    ).resolves.toEqual([]);
-
-    expect(ctx.transactionManagerService.tx.rollback).toHaveBeenCalledTimes(1);
+    ).resolves.toBeInstanceOf(UnknownError);
   });
 
   it<Context>('returns an UnknownError when any other error is thrown', async (ctx) => {

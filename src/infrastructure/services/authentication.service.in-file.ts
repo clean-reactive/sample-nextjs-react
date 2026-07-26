@@ -6,10 +6,6 @@ import { sessionFactory } from '@/src/entities/models/session.factory';
 import { Cookie } from '@/src/entities/models/cookie';
 import { cookieFactory } from '@/src/entities/models/cookie.factory';
 
-// Stateless in-file auth double: in-file mode has no session store, so
-// instead of tracking sessions, the user's id and username are encoded into
-// the session id (the cookie value) itself and decoded back out on
-// validation — no lookup needed, and the recovered user is the real one.
 function encodeSessionId(id: string, username: string): string {
   return Buffer.from(JSON.stringify({ id, username })).toString('base64url');
 }

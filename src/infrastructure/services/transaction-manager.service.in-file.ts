@@ -2,19 +2,9 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 import { must } from '@/lib/utils';
 import { ITransactionManagerService } from '@/src/application/services/transaction-manager.service.interface';
-import { ITransaction } from '@/src/entities/models/transaction.interface';
 
-/**
- * In-file mode has no database transactions, so one is emulated: the backing
- * files are snapshotted before the callback runs and restored if it throws.
- * That gives the same all-or-nothing outcome a real driver provides, so a use
- * case behaves the same whichever backend is injected.
- *
- * The snapshot is whole-file, so a rollback also reverts anything else written
- * to those files while the callback ran. That is fine for the single-process
- * dev/test store this backend exists for, and would not be for concurrent
- * writers.
- */
+export type InFileTransaction = Record<string, never>;
+
 export class InFileTransactionManagerService implements ITransactionManagerService {
   constructor(
     private readonly files: string[] = [
@@ -24,8 +14,8 @@ export class InFileTransactionManagerService implements ITransactionManagerServi
   ) {}
 
   public async startTransaction<T>(
-    clb: (tx: ITransaction) => Promise<T>,
-    parent?: ITransaction
+    clb: (tx: InFileTransaction) => Promise<T>,
+    parent?: InFileTransaction
   ): Promise<T> {
     // A nested call is already covered by the snapshot the outer one took.
     if (parent) {
@@ -38,7 +28,7 @@ export class InFileTransactionManagerService implements ITransactionManagerServi
     );
 
     try {
-      return await clb({ rollback: () => {} });
+      return await clb({});
     } catch (err) {
       for (const [file, contents] of snapshot) {
         if (contents === null) {

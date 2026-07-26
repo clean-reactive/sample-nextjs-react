@@ -4,10 +4,10 @@ import type { ITransactionManagerService } from '@/src/application/services/tran
 import type { ITransaction } from '@/src/entities/models/transaction.interface';
 
 export const createTransactionManagerServiceMock = () => {
-  const tx: Mocked<ITransaction> = { rollback: vi.fn() };
+  const tx: ITransaction = {};
   const startTransaction = vi.fn(
     (clb: (tx: ITransaction) => Promise<unknown>) => clb(tx)
-  ) as unknown as Mocked<ITransactionManagerService>['startTransaction'];
+  ) as Mocked<ITransactionManagerService>['startTransaction'];
 
   return { tx, startTransaction };
 };

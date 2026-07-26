@@ -56,30 +56,21 @@ export const createTodoUseCase =
 
       const todosFromInput = data.todo.split(',').map((t) => t.trim());
 
-      // Validate before the transaction: the inner catch below rolls back and
-      // swallows, so an error thrown inside would surface as a false success.
       if (todosFromInput.some((t) => t.length < 4)) {
         return presenter(new InputParseError('Todo must be at least 4 chars'));
       }
 
-      const todos = await transactionManagerService.startTransaction(
-        async (tx) => {
-          try {
-            return await Promise.all(
-              todosFromInput.map((t) =>
-                todosRepository.createTodo(
-                  { todo: t, userId: user.id, completed: false },
-                  tx
-                )
-              )
-            );
-          } catch (err) {
-            console.error('Rolling back!');
-            tx.rollback();
-          }
-        }
+      const todos = await transactionManagerService.startTransaction((tx) =>
+        Promise.all(
+          todosFromInput.map((t) =>
+            todosRepository.createTodo(
+              { todo: t, userId: user.id, completed: false },
+              tx
+            )
+          )
+        )
       );
-      return presenter(todos ?? []);
+      return presenter(todos);
     } catch (err) {
       if (err instanceof UnauthenticatedError) {
         return presenter(err);
