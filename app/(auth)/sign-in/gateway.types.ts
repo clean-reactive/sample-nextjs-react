@@ -15,3 +15,13 @@ export type SignInActionFailure = {
 export type SignInAction = (
   formData: FormData
 ) => Promise<SignInActionFailure | void>;
+
+/**
+ * @description Gateway<I> of the sign-in page — all available actions.
+ * @owner The page; gateway.ts binds it to the server actions.
+ * @emerges From the controller's needs: it depends on this contract rather
+ * than on the concrete action.
+ */
+export interface SignInPageGateway {
+  signIn: SignInAction;
+}

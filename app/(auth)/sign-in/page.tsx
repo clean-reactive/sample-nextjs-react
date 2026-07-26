@@ -15,7 +15,7 @@ import {
 import { Input } from '../../_components/ui/input';
 import { Label } from '../../_components/ui/label';
 import { Separator } from '../../_components/ui/separator';
-import { signInAction } from './actions';
+import { makeSignInPageGateway } from './gateway';
 import { initialState, reducer, type SignInFailureCode } from './reducer';
 
 const errorMessages: Record<SignInFailureCode, string> = {
@@ -38,14 +38,17 @@ export default function SignInPage() {
 
   // controller
   const onFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const gateway = makeSignInPageGateway();
+
     event.preventDefault();
+
     if (isSubmitting) return;
 
     const formData = new FormData(event.currentTarget);
 
     dispatch({ type: 'SUBMIT_STARTED' });
     try {
-      const res = await signInAction(formData);
+      const res = await gateway.signIn(formData);
       if (res?.status === 'failure') {
         dispatch({ type: 'SUBMIT_FAILED', code: res.code });
       }
