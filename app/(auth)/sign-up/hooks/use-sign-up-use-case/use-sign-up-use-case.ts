@@ -1,8 +1,8 @@
 import type { Dispatch } from 'react';
-import { signUpAction } from '../../actions';
+import { makeSignUpPageGateway } from '../../gateway';
 import type { SignUpPageEntity, SignUpPageEvent } from '../../reducer';
 
-type AppUseCase<T> = (params: T) => Promise<void>;
+export type AppUseCase<T> = (params: T) => Promise<void>;
 
 export interface UseCaseDependencies {
   state: SignUpPageEntity;
@@ -13,6 +13,7 @@ export function useSignUpUseCase(
   dependencies: UseCaseDependencies
 ): AppUseCase<FormData> {
   const { state, dispatch } = dependencies;
+  const gateway = makeSignUpPageGateway();
 
   return async (formData: FormData) => {
     if (state.status === 'submitting') return;
@@ -26,7 +27,7 @@ export function useSignUpUseCase(
 
     dispatch({ type: 'SUBMIT_STARTED' });
     try {
-      const res = await signUpAction(formData);
+      const res = await gateway.signUp(formData);
       if (res?.status === 'failure') {
         dispatch({ type: 'SUBMIT_FAILED', code: res.code });
       }

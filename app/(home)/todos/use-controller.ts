@@ -1,6 +1,6 @@
 import type { Dispatch } from 'react';
 import { toast } from 'sonner';
-import { bulkUpdateAction } from '../actions/bulk-update.action';
+import { makeHomePageGateway } from '../gateway';
 import type { HomePageEvent, HomePageState } from '../reducer';
 import type { BulkUpdateFailureCode } from '../gateway.types';
 import type { TodosController } from './todos.types';
@@ -26,11 +26,13 @@ export function useController(
   const { state, dispatch } = dependencies;
 
   const onUpdateAllClick = async () => {
+    const gateway = makeHomePageGateway();
+
     if (state.status !== 'bulk') return;
 
     dispatch({ type: 'UPDATE_ALL_STARTED' });
     try {
-      const res = await bulkUpdateAction(state.dirty, state.deleted);
+      const res = await gateway.bulkUpdate(state.dirty, state.deleted);
       if (res.status === 'failure') {
         toast.error(errorMessages[res.code]);
       } else {

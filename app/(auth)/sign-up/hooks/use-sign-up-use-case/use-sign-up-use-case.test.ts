@@ -1,12 +1,23 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Dispatch } from 'react';
+import {
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mock,
+  type Mocked,
+} from 'vitest';
 
 import { useSignUpUseCase } from './use-sign-up-use-case';
-import { signUpAction } from '../../actions';
-import type { SignUpPageEntity } from '../../reducer';
+import { makeSignUpPageGateway } from '../../gateway';
+import type { SignUpPageGateway } from '../../gateway.types';
+import type { SignUpPageEntity, SignUpPageEvent } from '../../reducer';
 
-vi.mock('../../actions', () => ({
-  signUpAction: vi.fn(),
-}));
+vi.mock('../../gateway', () => {
+  const gateway: Mocked<SignUpPageGateway> = { signUp: vi.fn() };
+  return { makeSignUpPageGateway: () => gateway };
+});
 
 function makeFormData(fields: Record<string, string>) {
   const formData = new FormData();
@@ -16,92 +27,119 @@ function makeFormData(fields: Record<string, string>) {
   return formData;
 }
 
+type Context = {
+  gateway: Mocked<SignUpPageGateway>;
+  dispatch: Mock<Dispatch<SignUpPageEvent>>;
+  state: SignUpPageEntity;
+};
+
 describe(`${useSignUpUseCase.name}`, () => {
-  beforeEach(() => {
-    vi.mocked(signUpAction).mockReset();
+  beforeEach<Context>((ctx) => {
+    const gateway = makeSignUpPageGateway();
+    ctx.gateway = vi.mocked(gateway);
+    ctx.gateway.signUp.mockReset();
+    ctx.dispatch = vi.fn();
+    ctx.state = { status: 'idle' };
   });
 
-  it('rejects mismatched passwords without calling the action', async () => {
-    const dispatch = vi.fn();
-    const idle: SignUpPageEntity = { status: 'idle' };
-    const signUp = useSignUpUseCase({ state: idle, dispatch });
+  it<Context>('rejects mismatched passwords without calling the gateway', async (ctx) => {
+    const signUpUseCase = useSignUpUseCase({
+      state: ctx.state,
+      dispatch: ctx.dispatch,
+    });
 
-    await signUp(makeFormData({ password: 'one', confirm_password: 'two' }));
+    await signUpUseCase(
+      makeFormData({ password: 'one', confirm_password: 'two' })
+    );
 
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(ctx.dispatch).toHaveBeenCalledWith({
       type: 'SUBMIT_FAILED',
       code: 'password_mismatch',
     });
-    expect(signUpAction).not.toHaveBeenCalled();
+    expect(ctx.gateway.signUp).not.toHaveBeenCalled();
   });
 
-  it('starts the submit and forwards the form data when passwords match', async () => {
-    vi.mocked(signUpAction).mockResolvedValue(undefined);
-    const dispatch = vi.fn();
-    const idle: SignUpPageEntity = { status: 'idle' };
-    const signUp = useSignUpUseCase({ state: idle, dispatch });
+  it<Context>('starts the submit and forwards the form data when passwords match', async (ctx) => {
+    ctx.gateway.signUp.mockResolvedValue(undefined);
+    const signUpUseCase = useSignUpUseCase({
+      state: ctx.state,
+      dispatch: ctx.dispatch,
+    });
     const formData = makeFormData({
       password: 'same',
       confirm_password: 'same',
     });
 
-    await signUp(formData);
+    await signUpUseCase(formData);
 
-    expect(dispatch).toHaveBeenCalledWith({ type: 'SUBMIT_STARTED' });
-    expect(signUpAction).toHaveBeenCalledWith(formData);
+    expect(ctx.dispatch).toHaveBeenCalledWith({ type: 'SUBMIT_STARTED' });
+    expect(ctx.gateway.signUp).toHaveBeenCalledWith(formData);
   });
 
-  it('does not dispatch a failure when the action succeeds', async () => {
-    vi.mocked(signUpAction).mockResolvedValue(undefined);
-    const dispatch = vi.fn();
-    const idle: SignUpPageEntity = { status: 'idle' };
-    const signUp = useSignUpUseCase({ state: idle, dispatch });
+  it<Context>('does not dispatch a failure when the gateway succeeds', async (ctx) => {
+    ctx.gateway.signUp.mockResolvedValue(undefined);
+    const signUpUseCase = useSignUpUseCase({
+      state: ctx.state,
+      dispatch: ctx.dispatch,
+    });
 
-    await signUp(makeFormData({ password: 'same', confirm_password: 'same' }));
+    await signUpUseCase(
+      makeFormData({ password: 'same', confirm_password: 'same' })
+    );
 
-    expect(dispatch).toHaveBeenCalledTimes(1);
-    expect(dispatch).toHaveBeenCalledWith({ type: 'SUBMIT_STARTED' });
+    expect(ctx.dispatch).toHaveBeenCalledTimes(1);
+    expect(ctx.dispatch).toHaveBeenCalledWith({ type: 'SUBMIT_STARTED' });
   });
 
-  it('dispatches the failure code returned by the action', async () => {
-    vi.mocked(signUpAction).mockResolvedValue({
+  it<Context>('dispatches the failure code returned by the gateway', async (ctx) => {
+    ctx.gateway.signUp.mockResolvedValue({
       status: 'failure',
       code: 'username_taken',
     });
-    const dispatch = vi.fn();
-    const idle: SignUpPageEntity = { status: 'idle' };
-    const signUp = useSignUpUseCase({ state: idle, dispatch });
+    const signUpUseCase = useSignUpUseCase({
+      state: ctx.state,
+      dispatch: ctx.dispatch,
+    });
 
-    await signUp(makeFormData({ password: 'same', confirm_password: 'same' }));
+    await signUpUseCase(
+      makeFormData({ password: 'same', confirm_password: 'same' })
+    );
 
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(ctx.dispatch).toHaveBeenCalledWith({
       type: 'SUBMIT_FAILED',
       code: 'username_taken',
     });
   });
 
-  it('dispatches unexpected_error when the action throws', async () => {
-    vi.mocked(signUpAction).mockRejectedValue(new Error('network down'));
-    const dispatch = vi.fn();
-    const idle: SignUpPageEntity = { status: 'idle' };
-    const signUp = useSignUpUseCase({ state: idle, dispatch });
+  it<Context>('dispatches unexpected_error when the gateway throws', async (ctx) => {
+    ctx.gateway.signUp.mockRejectedValue(new Error('network down'));
+    const signUpUseCase = useSignUpUseCase({
+      state: ctx.state,
+      dispatch: ctx.dispatch,
+    });
 
-    await signUp(makeFormData({ password: 'same', confirm_password: 'same' }));
+    await signUpUseCase(
+      makeFormData({ password: 'same', confirm_password: 'same' })
+    );
 
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(ctx.dispatch).toHaveBeenCalledWith({
       type: 'SUBMIT_FAILED',
       code: 'unexpected_error',
     });
   });
 
-  it('ignores a submit while one is already in flight', async () => {
-    const dispatch = vi.fn();
+  it<Context>('ignores a submit while one is already in flight', async (ctx) => {
     const submitting: SignUpPageEntity = { status: 'submitting' };
-    const signUp = useSignUpUseCase({ state: submitting, dispatch });
+    const signUpUseCase = useSignUpUseCase({
+      state: submitting,
+      dispatch: ctx.dispatch,
+    });
 
-    await signUp(makeFormData({ password: 'same', confirm_password: 'same' }));
+    await signUpUseCase(
+      makeFormData({ password: 'same', confirm_password: 'same' })
+    );
 
-    expect(dispatch).not.toHaveBeenCalled();
-    expect(signUpAction).not.toHaveBeenCalled();
+    expect(ctx.dispatch).not.toHaveBeenCalled();
+    expect(ctx.gateway.signUp).not.toHaveBeenCalled();
   });
 });

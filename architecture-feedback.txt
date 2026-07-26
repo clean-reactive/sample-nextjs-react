@@ -86,15 +86,23 @@ WHERE THE CODE CONTRADICTS ITS OWN ARCHITECTURE
    notification interface accepting typed events (composing copy internally)
    would restore the separation. Not warranted at the current size.
 
-3. Client-side DIP is nominal.
+3. Client-side DIP is nominal. (ADDRESSED 2026-07-26)
 
-   gateway.types.ts declares the contracts, but controllers import the
-   concrete server actions directly (e.g. `import { bulkUpdateAction } from
-   '../actions/...'`). Unlike the server core, there is no substitution seam —
-   the interface exists as a type but nothing consumes it as an injection
-   point, so testing a controller requires module mocking. Either inject the
-   gateway (context or hook dependencies, which the hooks already use for
-   state/dispatch) or document this as a deliberate simplification.
+   Original finding: gateway.types.ts declared the contracts, but controllers
+   imported the concrete server actions directly — the interface existed as a
+   type with no unit consuming it, so testing a controller required mocking
+   individual action modules.
+
+   Resolution: each feature slice now has an explicit Gateway unit. The
+   Gateway<I> in gateway.types.ts aggregates all available actions of the
+   slice (HomePageGateway, SignUpPageGateway), and gateway.ts implements it
+   with a make...Gateway() factory returning the gateway object bound to the
+   server actions. Controllers and the client-side use case call the factory
+   directly and depend only on the contract; gateway.ts is the single
+   client-side module that knows the concrete actions. The factory module is
+   the substitution seam: unit tests mock gateway.ts once instead of the
+   per-action modules. Verified: full static suite, 198 unit tests, and 60
+   in-file e2e tests pass.
 
 
 STRUCTURAL TRADE-OFFS WORTH ACKNOWLEDGING

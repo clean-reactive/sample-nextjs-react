@@ -1,6 +1,6 @@
 import type { Dispatch } from 'react';
 import { toast } from 'sonner';
-import { toggleTodoAction } from '../../actions/toggle-todo.action';
+import { makeHomePageGateway } from '../../gateway';
 import type { HomePageEvent, HomePageState } from '../../reducer';
 import type { Todo } from '../todos.types';
 import type { ToggleTodoFailureCode } from '../../gateway.types';
@@ -28,13 +28,15 @@ export function useController(
   const { todo, state, dispatch } = dependencies;
 
   const onCheckedChange = async () => {
+    const gateway = makeHomePageGateway();
+
     if (state.status !== 'view') {
       dispatch({ type: 'TODO_DIRTY_TOGGLED', id: todo.id });
       return;
     }
 
     try {
-      const res = await toggleTodoAction(todo.id);
+      const res = await gateway.toggleTodo(todo.id);
       if (res.status === 'failure') {
         toast.error(errorMessages[res.code]);
       } else {

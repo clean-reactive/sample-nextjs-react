@@ -1,6 +1,6 @@
 import type { Dispatch, FormEvent, RefObject, SetStateAction } from 'react';
 import { toast } from 'sonner';
-import { createTodoAction } from '../actions/create-todo.action';
+import { makeHomePageGateway } from '../gateway';
 import type { AddTodoFailureCode } from '../gateway.types';
 import type { AddTodoController } from './add-todo.types';
 
@@ -25,6 +25,8 @@ export function useController(
   const { inputRef, loading, setLoading } = dependencies;
 
   const onFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    const gateway = makeHomePageGateway();
+
     event.preventDefault();
     if (loading) return;
 
@@ -32,7 +34,7 @@ export function useController(
 
     setLoading(true);
     try {
-      const res = await createTodoAction(formData);
+      const res = await gateway.addTodo(formData);
       if (res.status === 'failure') {
         toast.error(errorMessages[res.code]);
       } else {

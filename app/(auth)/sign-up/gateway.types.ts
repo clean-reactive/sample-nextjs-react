@@ -8,3 +8,7 @@ export type SignUpActionFailure = {
   status: 'failure';
   code: SignUpFailureCode;
 };
+
+export interface SignUpPageGateway {
+  signUp: SignUpAction;
+}

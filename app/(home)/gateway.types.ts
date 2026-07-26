@@ -46,3 +46,10 @@ export type ToggleTodoActionFailure = {
 
 // NOTE(harunou): Sign out action.
 export type SignOutAction = () => Promise<void>;
+
+export interface HomePageGateway {
+  addTodo: AddTodoAction;
+  bulkUpdate: BulkUpdateAction;
+  toggleTodo: ToggleTodoAction;
+  signOut: SignOutAction;
+}

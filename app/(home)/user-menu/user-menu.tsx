@@ -7,12 +7,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../../_components/ui/dropdown-menu';
-import { signOutAction } from '../actions/sign-out.action';
+import { makeHomePageGateway } from '../gateway';
 
 export function UserMenu() {
   // controller
   const onSignOutClick = async () => {
-    await signOutAction();
+    const gateway = makeHomePageGateway();
+    await gateway.signOut();
   };
 
   return (
