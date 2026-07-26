@@ -73,66 +73,51 @@ export const bulkUpdateUseCase =
 
       const { dirty, deleted } = data;
 
-      const toggledTodos = await transactionManagerService.startTransaction(
-        async (mainTx) => {
-          let toggled: Todo[] | undefined;
-          try {
-            toggled = await Promise.all(
-              dirty.map(async (id) => {
-                const todo = await todosRepository.getTodo(id);
-                if (!todo) {
-                  throw new NotFoundError('Todo does not exist');
-                }
-                if (todo.userId !== user.id) {
-                  throw new UnauthorizedError(
-                    'Cannot toggle todo. Reason: unauthorized'
-                  );
-                }
-                return todosRepository.updateTodo(
-                  todo.id,
-                  { completed: !todo.completed },
-                  mainTx
+      const toggled = await transactionManagerService.startTransaction(
+        async (tx) => {
+          const toggledTodos = await Promise.all(
+            dirty.map(async (id) => {
+              const todo = await todosRepository.getTodo(id);
+              if (!todo) {
+                throw new NotFoundError('Todo does not exist');
+              }
+              if (todo.userId !== user.id) {
+                throw new UnauthorizedError(
+                  'Cannot toggle todo. Reason: unauthorized'
                 );
-              })
-            );
-          } catch (err) {
-            console.error(err);
-            console.error('Rolling back toggles!');
-            mainTx.rollback();
-          }
-
-          // Savepoint: a failed delete rolls back only the deletes, not the
-          // toggles.
-          await transactionManagerService.startTransaction(async (deleteTx) => {
-            try {
-              await Promise.all(
-                deleted.map(async (id) => {
-                  const todo = await todosRepository.getTodo(id);
-                  if (!todo) {
-                    throw new NotFoundError('Todo does not exist');
-                  }
-                  if (todo.userId !== user.id) {
-                    throw new UnauthorizedError(
-                      'Cannot delete todo. Reason: unauthorized'
-                    );
-                  }
-                  await todosRepository.deleteTodo(todo.id, deleteTx);
-                })
+              }
+              return todosRepository.updateTodo(
+                todo.id,
+                { completed: !todo.completed },
+                tx
               );
-            } catch (err) {
-              console.error('Rolling back deletes!');
-              deleteTx.rollback();
-            }
-          }, mainTx);
+            })
+          );
 
-          return toggled;
+          await Promise.all(
+            deleted.map(async (id) => {
+              const todo = await todosRepository.getTodo(id);
+              if (!todo) {
+                throw new NotFoundError('Todo does not exist');
+              }
+              if (todo.userId !== user.id) {
+                throw new UnauthorizedError(
+                  'Cannot delete todo. Reason: unauthorized'
+                );
+              }
+              return todosRepository.deleteTodo(todo.id, tx);
+            })
+          );
+
+          return toggledTodos;
         }
       );
 
-      return presenter(toggledTodos ?? []);
+      return presenter(toggled);
     } catch (err) {
       if (
         err instanceof UnauthenticatedError ||
+        err instanceof UnauthorizedError ||
         err instanceof NotFoundError ||
         err instanceof InputParseError
       ) {
