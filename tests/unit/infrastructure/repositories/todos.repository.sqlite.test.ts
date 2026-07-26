@@ -50,6 +50,36 @@ describe(`${SqliteTodosRepository.name}`, () => {
       expect(todos).toHaveLength(1);
       expect(todos.at(0)).toMatchObject(input);
     });
+
+    // The `tx` parameter is what lets a use case make several writes atomic.
+    // Without these cases the transactional branch is never exercised - every
+    // other call goes through `this.db` and autocommits.
+    it('commits the write when the transaction it joins commits', async () => {
+      const input = todoInsertFactory.item();
+      await insertTestUser(connection, input.userId);
+
+      const created = await connection.db.transaction((tx) =>
+        repo.createTodo(input, tx)
+      );
+
+      expect(await getAllTodos(connection)).toEqual([created]);
+    });
+
+    it('discards the write when the transaction it joins rolls back', async () => {
+      const input = todoInsertFactory.item();
+      await insertTestUser(connection, input.userId);
+
+      await expect(
+        connection.db.transaction(async (tx) => {
+          await repo.createTodo(input, tx);
+          // Throwing is how a transaction is rolled back - the contract the
+          // transaction manager and its use cases rely on.
+          throw new Error('abort');
+        })
+      ).rejects.toThrow('abort');
+
+      expect(await getAllTodos(connection)).toEqual([]);
+    });
   });
 
   describe('getTodo', () => {
@@ -107,6 +137,22 @@ describe(`${SqliteTodosRepository.name}`, () => {
     it('returns undefined when the todo does not exist', async () => {
       expect(await repo.updateTodo(999, { completed: true })).toBeUndefined();
     });
+
+    it('discards the update when the transaction it joins rolls back', async () => {
+      const todo = todoInsertFactory.item({ completed: false });
+      await insertTestUser(connection, todo.userId);
+      await insertTestTodo(connection, todo);
+      const [seeded] = await getAllTodos(connection);
+
+      await expect(
+        connection.db.transaction(async (tx) => {
+          await repo.updateTodo(seeded.id, { completed: true }, tx);
+          throw new Error('abort');
+        })
+      ).rejects.toThrow('abort');
+
+      expect(await getAllTodos(connection)).toEqual([seeded]);
+    });
   });
 
   describe('deleteTodo', () => {
@@ -123,6 +169,22 @@ describe(`${SqliteTodosRepository.name}`, () => {
 
     it('is a no-op for a non-existent id', async () => {
       await expect(repo.deleteTodo(999)).resolves.toBeUndefined();
+    });
+
+    it('restores the row when the transaction it joins rolls back', async () => {
+      const todo = todoInsertFactory.item();
+      await insertTestUser(connection, todo.userId);
+      await insertTestTodo(connection, todo);
+      const [seeded] = await getAllTodos(connection);
+
+      await expect(
+        connection.db.transaction(async (tx) => {
+          await repo.deleteTodo(seeded.id, tx);
+          throw new Error('abort');
+        })
+      ).rejects.toThrow('abort');
+
+      expect(await getAllTodos(connection)).toEqual([seeded]);
     });
   });
 });
