@@ -1,4 +1,4 @@
-import { DrizzleConnection, Transaction } from '@/drizzle';
+import { DrizzleConnection, SqliteTransaction } from '@/drizzle';
 import { ITransactionManagerService } from '@/src/application/services/transaction-manager.service.interface';
 
 export class TransactionManagerService implements ITransactionManagerService {
@@ -11,8 +11,8 @@ export class TransactionManagerService implements ITransactionManagerService {
   }
 
   public startTransaction<T>(
-    clb: (tx: Transaction) => Promise<T>,
-    parent?: Transaction
+    clb: (tx: SqliteTransaction) => Promise<T>,
+    parent?: SqliteTransaction
   ): Promise<T> {
     const invoker = parent ?? this.db;
     return invoker.transaction(clb);

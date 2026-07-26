@@ -5,8 +5,16 @@ import { todos, users } from '@/drizzle/schema';
 import type { Todo, TodoInsert } from '@/src/entities/models/todo';
 import type { User } from '@/src/entities/models/user';
 
+// `cache=shared` is required, not cosmetic: with a plain `file::memory:` URL
+// libsql tears the database down when a transaction opens, so every table
+// vanishes mid-test and no transactional behaviour can be covered. Vitest
+// isolates each test file in its own process, so the shared cache is not
+// shared between files.
 export function newSqliteTestConnection(): DrizzleConnection {
-  return new DrizzleConnection('file::memory:', 'unit-test-auth-token');
+  return new DrizzleConnection(
+    'file::memory:?cache=shared',
+    'unit-test-auth-token'
+  );
 }
 
 export async function migrateSqliteTestDb(

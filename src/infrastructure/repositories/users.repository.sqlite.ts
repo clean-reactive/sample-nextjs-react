@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { hash } from 'bcrypt-ts';
 
-import { DrizzleConnection } from '@/drizzle';
+import { DrizzleConnection, SqliteTransaction } from '@/drizzle';
 import { users } from '@/drizzle/schema';
 import { IUsersRepository } from '@/src/application/repositories/users.repository.interface';
 import { DatabaseOperationError } from '@/src/entities/errors/common';
@@ -35,7 +35,9 @@ export class SqliteUsersRepository implements IUsersRepository {
 
     return user;
   }
-  async createUser(input: CreateUser): Promise<User> {
+  async createUser(input: CreateUser, tx?: SqliteTransaction): Promise<User> {
+    const invoker = tx ?? this.db;
+
     const password_hash = await hash(input.password, PASSWORD_SALT_ROUNDS);
 
     const newUser: User = {
@@ -43,7 +45,7 @@ export class SqliteUsersRepository implements IUsersRepository {
       username: input.username,
       password_hash,
     };
-    const query = this.db.insert(users).values(newUser).returning();
+    const query = invoker.insert(users).values(newUser).returning();
 
     const [created] = await query.execute();
 

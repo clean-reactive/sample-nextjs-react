@@ -43,6 +43,31 @@ describe(`${SqliteUsersRepository.name}`, () => {
 
       await expect(repo.createUser(input)).rejects.toThrow();
     });
+
+    it('commits the write when the transaction it joins commits', async () => {
+      const input = createUserFactory.item();
+
+      const created = await connection.db.transaction((tx) =>
+        repo.createUser(input, tx)
+      );
+
+      expect(await getAllUsers(connection)).toEqual([created]);
+    });
+
+    it('discards the write when the transaction it joins rolls back', async () => {
+      const input = createUserFactory.item();
+
+      await expect(
+        connection.db.transaction(async (tx) => {
+          await repo.createUser(input, tx);
+          // Throwing is how a transaction is rolled back - the contract the
+          // transaction manager and its use cases rely on.
+          throw new Error('abort');
+        })
+      ).rejects.toThrow('abort');
+
+      expect(await getAllUsers(connection)).toEqual([]);
+    });
   });
 
   describe('getUser', () => {

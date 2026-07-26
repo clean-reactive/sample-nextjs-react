@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 
-import { DrizzleConnection, Transaction } from '@/drizzle';
+import { DrizzleConnection, SqliteTransaction } from '@/drizzle';
 import { todos } from '@/drizzle/schema';
 import { ITodosRepository } from '@/src/application/repositories/todos.repository.interface';
 import { DatabaseOperationError } from '@/src/entities/errors/common';
@@ -15,7 +15,7 @@ export class SqliteTodosRepository implements ITodosRepository {
     return this.connection.db;
   }
 
-  async createTodo(todo: TodoInsert, tx?: Transaction): Promise<Todo> {
+  async createTodo(todo: TodoInsert, tx?: SqliteTransaction): Promise<Todo> {
     const invoker = tx ?? this.db;
 
     const query = invoker.insert(todos).values(todo).returning();
@@ -51,7 +51,7 @@ export class SqliteTodosRepository implements ITodosRepository {
   async updateTodo(
     id: number,
     input: Partial<TodoInsert>,
-    tx?: Transaction
+    tx?: SqliteTransaction
   ): Promise<Todo> {
     const invoker = tx ?? this.db;
 
@@ -65,7 +65,7 @@ export class SqliteTodosRepository implements ITodosRepository {
     return updated;
   }
 
-  async deleteTodo(id: number, tx?: Transaction): Promise<void> {
+  async deleteTodo(id: number, tx?: SqliteTransaction): Promise<void> {
     const invoker = tx ?? this.db;
 
     const query = invoker.delete(todos).where(eq(todos.id, id)).returning();

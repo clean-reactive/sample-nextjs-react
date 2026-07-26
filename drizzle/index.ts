@@ -12,7 +12,7 @@ type Schema = {
   todos: typeof todos;
 };
 
-export type Transaction = SQLiteTransaction<
+export type SqliteTransaction = SQLiteTransaction<
   'async',
   ResultSet,
   Schema,
