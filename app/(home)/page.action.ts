@@ -15,7 +15,7 @@ type GetTodosFailure = { status: 'failure' };
 
 type GetTodosSuccess = { status: 'success'; data: Todo[] };
 
-export async function provideTemplateData(): Promise<{ todos: Todo[] }> {
+export async function homePageAction(): Promise<{ todos: Todo[] }> {
   const getTodosController: GetTodosControllerPort = getInjection(
     'IGetTodosForUserBffController'
   );

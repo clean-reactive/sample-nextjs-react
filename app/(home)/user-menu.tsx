@@ -1,13 +1,13 @@
 'use client';
 
-import { Avatar, AvatarFallback } from '../../_components/ui/avatar';
+import { Avatar, AvatarFallback } from '../_components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../_components/ui/dropdown-menu';
-import { makeHomePageGateway } from '../gateway';
+} from '../_components/ui/dropdown-menu';
+import { makeHomePageGateway } from './gateway';
 
 export function UserMenu() {
   // controller

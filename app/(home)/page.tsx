@@ -7,14 +7,17 @@ import {
 import { Separator } from '../_components/ui/separator';
 import { AddTodo } from './add-todo/add-todo';
 import { HomePageProvider } from './context';
-import { UserMenu } from './user-menu/user-menu';
+import { UserMenu } from './user-menu';
 import { Todos } from './todos/todos';
-import { provideTemplateData } from './provide-template-data';
+import { homePageAction } from './page.action';
 
 // NOTE(harunou): this is a template, executed on the server
 export default async function HomePage() {
   // NOTE(harunou): this is data interpolation into the template
-  const { todos } = await provideTemplateData();
+  // there are two types of actions:
+  // - gateway actions (exposed with 'use server')
+  // - page/widget actions (not exposed , 'server-only')
+  const { todos } = await homePageAction();
 
   return (
     <HomePageProvider>
