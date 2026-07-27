@@ -6,12 +6,12 @@ import { Button } from '../../../_components/ui/button';
 import { Checkbox } from '../../../_components/ui/checkbox';
 import { cn } from '../../../_components/utils';
 import { useHomePageContext } from '../../context';
-import type { Todo } from '../todos.types';
+import type { TodoEntity } from '../../page.types';
 import { useController } from './use-controller';
 import { usePresenter } from './use-presenter';
 
 export interface TodoItemProps {
-  todo: Todo;
+  todo: TodoEntity;
 }
 
 export function TodoItem({ todo }: TodoItemProps) {

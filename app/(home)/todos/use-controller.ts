@@ -1,12 +1,12 @@
 import type { Dispatch } from 'react';
 import { toast } from 'sonner';
 import { makeHomePageGateway } from '../gateway';
-import type { HomePageEvent, HomePageState } from '../reducer';
+import type { HomePageEvent, HomePageEntity } from '../reducer';
 import type { BulkUpdateFailureCode } from '../gateway.types';
 import type { TodosController } from './todos.types';
 
 export interface ControllerDependencies {
-  state: HomePageState;
+  state: HomePageEntity;
   dispatch: Dispatch<HomePageEvent>;
 }
 

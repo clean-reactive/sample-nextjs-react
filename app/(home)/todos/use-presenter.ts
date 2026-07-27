@@ -1,9 +1,10 @@
-import type { HomePageState } from '../reducer';
-import type { Todo, TodosPresenter } from './todos.types';
+import type { HomePageEntity } from '../reducer';
+import type { TodosPresenter } from './todos.types';
+import type { TodoEntity } from '../page.types';
 
 export interface PresenterDependencies {
-  todos: Todo[];
-  state: HomePageState;
+  todos: TodoEntity[];
+  state: HomePageEntity;
 }
 
 export function usePresenter(

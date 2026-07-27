@@ -1,14 +1,14 @@
 import type { Dispatch } from 'react';
 import { toast } from 'sonner';
 import { makeHomePageGateway } from '../../gateway';
-import type { HomePageEvent, HomePageState } from '../../reducer';
-import type { Todo } from '../todos.types';
+import type { HomePageEvent, HomePageEntity } from '../../reducer';
+import type { TodoEntity } from '../../page.types';
 import type { ToggleTodoFailureCode } from '../../gateway.types';
 import type { TodoItemController } from './todo-item.types';
 
 export interface ControllerDependencies {
-  todo: Todo;
-  state: HomePageState;
+  todo: TodoEntity;
+  state: HomePageEntity;
   dispatch: Dispatch<HomePageEvent>;
 }
 

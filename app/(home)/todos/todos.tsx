@@ -5,11 +5,11 @@ import { Loader } from 'lucide-react';
 import { Button } from '../../_components/ui/button';
 import { useHomePageContext } from '../context';
 import { TodoItem } from './todo-item/todo-item';
-import type { Todo } from './todos.types';
+import type { TodoEntity } from '../page.types';
 import { useController } from './use-controller';
 import { usePresenter } from './use-presenter';
 
-export function Todos({ todos }: { todos: Todo[] }) {
+export function Todos({ todos }: { todos: TodoEntity[] }) {
   // entities
   const { state, dispatch } = useHomePageContext();
 

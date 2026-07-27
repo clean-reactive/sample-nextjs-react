@@ -11,11 +11,11 @@ import {
   initialState,
   reducer,
   type HomePageEvent,
-  type HomePageState,
+  type HomePageEntity,
 } from './reducer';
 
 export interface HomePageContextValue {
-  state: HomePageState;
+  state: HomePageEntity;
   dispatch: Dispatch<HomePageEvent>;
 }
 

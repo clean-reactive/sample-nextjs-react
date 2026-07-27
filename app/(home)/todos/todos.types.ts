@@ -1,10 +1,3 @@
-export type Todo = {
-  id: number;
-  todo: string;
-  userId: string;
-  completed: boolean;
-};
-
 export interface TodosController {
   onUpdateAllClick: () => void;
   onBulkOperationsClick: () => void;

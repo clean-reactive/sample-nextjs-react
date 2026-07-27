@@ -1,4 +1,4 @@
-export type HomePageState =
+export type HomePageEntity =
   | { status: 'view' }
   | { status: 'bulk'; dirty: number[]; deleted: number[] }
   | { status: 'updating'; dirty: number[]; deleted: number[] };
@@ -11,15 +11,15 @@ export type HomePageEvent =
   | { type: 'UPDATE_ALL_STARTED' }
   | { type: 'UPDATE_ALL_FINISHED' };
 
-export const initialState: HomePageState = { status: 'view' };
+export const initialState: HomePageEntity = { status: 'view' };
 
 const toggleMembership = (ids: number[], id: number) =>
   ids.includes(id) ? ids.filter((i) => i !== id) : [...ids, id];
 
 export function reducer(
-  state: HomePageState,
+  state: HomePageEntity,
   event: HomePageEvent
-): HomePageState {
+): HomePageEntity {
   switch (event.type) {
     case 'BULK_MODE_ENTERED':
       return { status: 'bulk', dirty: [], deleted: [] };
