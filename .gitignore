@@ -37,6 +37,9 @@ next-env.d.ts
 *.local
 *.local.*
 
+# lock files
+*.lock
+
 # Playwright
 /test-results/
 /playwright-report/
