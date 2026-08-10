@@ -1,4 +1,4 @@
-import type { SignUpFailureCode } from './reducer';
+import type { SignUpFailureCode } from '../reducer';
 
 export type SignUpAction = (
   formData: FormData

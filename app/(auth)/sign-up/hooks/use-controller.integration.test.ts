@@ -11,11 +11,11 @@ import {
 } from 'vitest';
 
 import { useController } from './use-controller';
-import { makeSignUpPageGateway } from '../gateway';
-import type { SignUpPageGateway } from '../gateway.types';
+import { makeSignUpPageGateway } from '../gateway/gateway';
+import type { SignUpPageGateway } from '../gateway/gateway.types';
 import type { SignUpPageEntity, SignUpPageEvent } from '../reducer';
 
-vi.mock('../gateway', () => {
+vi.mock('../gateway/gateway', () => {
   const gateway: Mocked<SignUpPageGateway> = { signUp: vi.fn() };
   return { makeSignUpPageGateway: () => gateway };
 });
