@@ -6,9 +6,9 @@ import { getInjection } from '@/di/container';
 import { SignInAction } from './gateway.types';
 
 /**
- * Implements the page's gateway (SignInAction). The injected BFF
- * controller's own type is inferred directly from getInjection — the
- * one place the two consumer-owned contracts meet, checked structurally.
+ * Implements the page's gateway method. The injected BFF controller's own type
+ * is inferred directly from getInjection — the one place the two consumer-owned
+ * contracts meet, checked structurally.
  *
  * The action maps no data: FormData goes to the controller as-is, and the
  * controller's view model comes back as-is — the BFF must shape both to meet

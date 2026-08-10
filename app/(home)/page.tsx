@@ -11,11 +11,10 @@ import { UserMenu } from './user-menu';
 import { Todos } from './todos/todos';
 import { homePageAction } from './page.action';
 
-// NOTE(harunou): HomePage is a template, router entry point, executed on the
-// server. Unlike a classic router(handler)->data processing->template
-// processing(interpolation) flow, control starts here: the template calls its
-// own page action to get the data
-// it needs.
+// NOTE(harunou): HomePage is a template, executed on the server. Unlike a
+// classic router(handler) -> data processing -> template
+// processing(interpolation) flow, control starts here: router calls the
+// template, the template calls its own page action to get the data it needs.
 export default async function HomePage() {
   // `{ todos }` is the template's interpolated value; see HomePageAction.
   const { todos } = await homePageAction();
