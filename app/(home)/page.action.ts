@@ -11,11 +11,13 @@ import type { HomePageAction } from './page.types';
 // Fetches the signed-in user's todos, redirecting to sign-in if the session is
 // missing or invalid.
 export const homePageAction: HomePageAction = async () => {
-  const getTodosController = getInjection('IGetTodosForUserBffController');
+  const getHomePageDataController = getInjection(
+    'IGetHomePageDataBffController'
+  );
 
   const cookie = cookies().get(SESSION_COOKIE)?.value;
 
-  const result = await getTodosController(cookie);
+  const result = await getHomePageDataController(cookie);
 
   if (result.status === 'failure') {
     redirect('/sign-in');

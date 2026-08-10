@@ -15,8 +15,8 @@ import { toggleTodoBffController } from '@/src/interface-adapters/bff/todos/togg
 import { toggleTodoBffPresenter } from '@/src/interface-adapters/bff/todos/toggle-todo/presenter';
 import { bulkUpdateBffController } from '@/src/interface-adapters/bff/todos/bulk-update/controller';
 import { bulkUpdateBffPresenter } from '@/src/interface-adapters/bff/todos/bulk-update/presenter';
-import { getTodosForUserBffController } from '@/src/interface-adapters/bff/todos/get-todos-for-user/controller';
-import { getTodosForUserBffPresenter } from '@/src/interface-adapters/bff/todos/get-todos-for-user/presenter';
+import { getHomePageDataBffController } from '@/src/interface-adapters/bff/todos/get-home-page-data/controller';
+import { getHomePageDataBffPresenter } from '@/src/interface-adapters/bff/todos/get-home-page-data/presenter';
 import { getTodosForUserApiController } from '@/src/interface-adapters/api/todos/get-todos-for-user/controller';
 import { getTodosForUserApiPresenter } from '@/src/interface-adapters/api/todos/get-todos-for-user/presenter';
 import { createTodoApiController } from '@/src/interface-adapters/api/todos/create-todo/controller';
@@ -105,21 +105,21 @@ export function createTodosModule() {
     ]);
 
   todosModule
-    .bind(DI_SYMBOLS.IGetTodosForUserBffPresenter)
-    .toHigherOrderFunction(getTodosForUserBffPresenter, []);
+    .bind(DI_SYMBOLS.IGetHomePageDataBffPresenter)
+    .toHigherOrderFunction(getHomePageDataBffPresenter, []);
 
   todosModule
-    .bind(DI_SYMBOLS.IGetTodosForUserBffUseCase)
+    .bind(DI_SYMBOLS.IGetHomePageDataBffUseCase)
     .toHigherOrderFunction(getTodosForUserUseCase, [
       DI_SYMBOLS.ITodosRepository,
       DI_SYMBOLS.IAuthenticationService,
-      DI_SYMBOLS.IGetTodosForUserBffPresenter,
+      DI_SYMBOLS.IGetHomePageDataBffPresenter,
     ]);
 
   todosModule
-    .bind(DI_SYMBOLS.IGetTodosForUserBffController)
-    .toHigherOrderFunction(getTodosForUserBffController, [
-      DI_SYMBOLS.IGetTodosForUserBffUseCase,
+    .bind(DI_SYMBOLS.IGetHomePageDataBffController)
+    .toHigherOrderFunction(getHomePageDataBffController, [
+      DI_SYMBOLS.IGetHomePageDataBffUseCase,
     ]);
 
   todosModule

@@ -10,7 +10,7 @@ import { ISignOutBffUseCase } from '@/src/interface-adapters/bff/auth/sign-out/c
 import { ICreateTodoBffUseCase } from '@/src/interface-adapters/bff/todos/create-todo/contract';
 import { IToggleTodoBffUseCase } from '@/src/interface-adapters/bff/todos/toggle-todo/contract';
 import { IBulkUpdateBffUseCase } from '@/src/interface-adapters/bff/todos/bulk-update/contract';
-import { IGetTodosForUserBffUseCase } from '@/src/interface-adapters/bff/todos/get-todos-for-user/contract';
+import { IGetHomePageDataBffUseCase } from '@/src/interface-adapters/bff/todos/get-home-page-data/contract';
 
 import {
   ISignInApiController,
@@ -52,9 +52,9 @@ import {
   IBulkUpdateBffPresenter,
 } from '@/src/interface-adapters/bff/todos/bulk-update/contract';
 import {
-  IGetTodosForUserBffController,
-  IGetTodosForUserBffPresenter,
-} from '@/src/interface-adapters/bff/todos/get-todos-for-user/contract';
+  IGetHomePageDataBffController,
+  IGetHomePageDataBffPresenter,
+} from '@/src/interface-adapters/bff/todos/get-home-page-data/contract';
 import {
   IGetTodosForUserApiController,
   IGetTodosForUserApiPresenter,
@@ -115,7 +115,7 @@ export const DI_SYMBOLS = {
   ICreateTodoBffUseCase: Symbol.for('ICreateTodoBffUseCase'),
   IToggleTodoBffUseCase: Symbol.for('IToggleTodoBffUseCase'),
   IBulkUpdateBffUseCase: Symbol.for('IBulkUpdateBffUseCase'),
-  IGetTodosForUserBffUseCase: Symbol.for('IGetTodosForUserBffUseCase'),
+  IGetHomePageDataBffUseCase: Symbol.for('IGetHomePageDataBffUseCase'),
   IGetTodosForUserApiUseCase: Symbol.for('IGetTodosForUserApiUseCase'),
   ICreateTodoApiUseCase: Symbol.for('ICreateTodoApiUseCase'),
   IToggleTodoApiUseCase: Symbol.for('IToggleTodoApiUseCase'),
@@ -135,7 +135,7 @@ export const DI_SYMBOLS = {
   ICreateTodoBffPresenter: Symbol.for('ICreateTodoBffPresenter'),
   IToggleTodoBffPresenter: Symbol.for('IToggleTodoBffPresenter'),
   IBulkUpdateBffPresenter: Symbol.for('IBulkUpdateBffPresenter'),
-  IGetTodosForUserBffPresenter: Symbol.for('IGetTodosForUserBffPresenter'),
+  IGetHomePageDataBffPresenter: Symbol.for('IGetHomePageDataBffPresenter'),
   IGetTodosForUserApiPresenter: Symbol.for('IGetTodosForUserApiPresenter'),
   ICreateTodoApiPresenter: Symbol.for('ICreateTodoApiPresenter'),
   IToggleTodoApiPresenter: Symbol.for('IToggleTodoApiPresenter'),
@@ -152,7 +152,7 @@ export const DI_SYMBOLS = {
   ICreateTodoBffController: Symbol.for('ICreateTodoBffController'),
   IToggleTodoBffController: Symbol.for('IToggleTodoBffController'),
   IBulkUpdateBffController: Symbol.for('IBulkUpdateBffController'),
-  IGetTodosForUserBffController: Symbol.for('IGetTodosForUserBffController'),
+  IGetHomePageDataBffController: Symbol.for('IGetHomePageDataBffController'),
   ISignInApiController: Symbol.for('ISignInApiController'),
   ISignUpApiController: Symbol.for('ISignUpApiController'),
   ISignOutApiController: Symbol.for('ISignOutApiController'),
@@ -187,7 +187,7 @@ export interface DI_RETURN_TYPES {
   ICreateTodoBffUseCase: ICreateTodoBffUseCase;
   IToggleTodoBffUseCase: IToggleTodoBffUseCase;
   IBulkUpdateBffUseCase: IBulkUpdateBffUseCase;
-  IGetTodosForUserBffUseCase: IGetTodosForUserBffUseCase;
+  IGetHomePageDataBffUseCase: IGetHomePageDataBffUseCase;
   IGetTodosForUserApiUseCase: IGetTodosForUserApiUseCase;
   ICreateTodoApiUseCase: ICreateTodoApiUseCase;
   IToggleTodoApiUseCase: IToggleTodoApiUseCase;
@@ -207,7 +207,7 @@ export interface DI_RETURN_TYPES {
   ICreateTodoBffPresenter: ICreateTodoBffPresenter;
   IToggleTodoBffPresenter: IToggleTodoBffPresenter;
   IBulkUpdateBffPresenter: IBulkUpdateBffPresenter;
-  IGetTodosForUserBffPresenter: IGetTodosForUserBffPresenter;
+  IGetHomePageDataBffPresenter: IGetHomePageDataBffPresenter;
   IGetTodosForUserApiPresenter: IGetTodosForUserApiPresenter;
   ICreateTodoApiPresenter: ICreateTodoApiPresenter;
   IToggleTodoApiPresenter: IToggleTodoApiPresenter;
@@ -224,7 +224,7 @@ export interface DI_RETURN_TYPES {
   ICreateTodoBffController: ICreateTodoBffController;
   IToggleTodoBffController: IToggleTodoBffController;
   IBulkUpdateBffController: IBulkUpdateBffController;
-  IGetTodosForUserBffController: IGetTodosForUserBffController;
+  IGetHomePageDataBffController: IGetHomePageDataBffController;
   ISignInApiController: ISignInApiController;
   ISignUpApiController: ISignUpApiController;
   ISignOutApiController: ISignOutApiController;

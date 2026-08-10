@@ -3,10 +3,10 @@ import {
   UnauthenticatedError,
 } from '@/src/entities/errors/auth';
 import { UnknownError } from '@/src/entities/errors/common';
-import { IGetTodosForUserBffPresenter } from '@/src/interface-adapters/bff/todos/get-todos-for-user/contract';
+import { IGetHomePageDataBffPresenter } from '@/src/interface-adapters/bff/todos/get-home-page-data/contract';
 
-export const getTodosForUserBffPresenter =
-  (): IGetTodosForUserBffPresenter => async (output) => {
+export const getHomePageDataBffPresenter =
+  (): IGetHomePageDataBffPresenter => async (output) => {
     if (
       output instanceof UnauthenticatedError ||
       output instanceof AuthenticationError
