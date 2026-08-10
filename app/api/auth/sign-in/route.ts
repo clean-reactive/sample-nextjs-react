@@ -6,8 +6,6 @@ import { getInjection } from '@/di/container';
  * @description The route's wire contract: `{ error }` on failure,
  * `{ success: true }` on success — the session travels in the Set-Cookie
  * header, not the body.
- * @owner The route; declared here — the view model's body branches must meet it
- * structurally where the route forwards `result.body`.
  * @emerges From what the route promises its HTTP clients.
  */
 type PostMethodOutput = NextResponse<{ error: string } | { success: true }>;

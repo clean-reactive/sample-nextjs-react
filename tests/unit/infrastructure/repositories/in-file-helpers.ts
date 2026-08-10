@@ -3,9 +3,6 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import type { Todo } from '@/src/entities/models/todo';
 import type { User } from '@/src/entities/models/user';
 
-// Reads/writes straight to the file, bypassing the repository under test, so
-// tests preparing state for a *different* repo method (e.g. seeding for
-// getTodo/getUser) don't also depend on createTodo/createUser working.
 export function readTodosFile(file: string): Todo[] {
   return JSON.parse(readFileSync(file, 'utf8')) as Todo[];
 }

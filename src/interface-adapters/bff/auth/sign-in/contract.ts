@@ -14,6 +14,12 @@ export type SignInSuccess = {
   data: Cookie;
 };
 
+/**
+ * @description The sign-in BFF's view model — shaped so the page's
+ * SignInAction can return it as-is on failure.
+ * @emerges From the page gateway's needs: actions.ts returns this directly
+ * to satisfy the SignInAction contract.
+ */
 export type SignInBffViewModel = SignInFailure | SignInSuccess;
 
 export type ISignInBffController = (

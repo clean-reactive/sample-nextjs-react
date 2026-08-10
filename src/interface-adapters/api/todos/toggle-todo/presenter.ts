@@ -22,8 +22,6 @@ function toApiTodo(todo: Todo): ToggleTodoApiTodo {
   };
 }
 
-// Decides the HTTP status and body for every outcome; the route only
-// forwards these into the response.
 export const toggleTodoApiPresenter =
   (): IToggleTodoApiPresenter => async (output) => {
     if (output instanceof InputParseError) {

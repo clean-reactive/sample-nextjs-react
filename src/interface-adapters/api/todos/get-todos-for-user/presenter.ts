@@ -18,8 +18,6 @@ function toApiTodo(todo: Todo): GetTodosForUserApiTodo {
   };
 }
 
-// Decides the HTTP status and body for every outcome; the route only
-// forwards these into the response.
 export const getTodosForUserApiPresenter =
   (): IGetTodosForUserApiPresenter => async (output) => {
     if (
