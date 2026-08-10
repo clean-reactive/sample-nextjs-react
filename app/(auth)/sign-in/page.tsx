@@ -15,7 +15,7 @@ import {
 import { Input } from '../../_components/ui/input';
 import { Label } from '../../_components/ui/label';
 import { Separator } from '../../_components/ui/separator';
-import { makeSignInPageGateway } from './gateway';
+import { makeSignInPageGateway } from './gateway/gateway';
 import { initialState, reducer, type SignInFailureCode } from './reducer';
 
 const errorMessages: Record<SignInFailureCode, string> = {

@@ -1,4 +1,4 @@
-import type { SignInFailureCode } from './reducer';
+import type { SignInFailureCode } from '../reducer';
 
 /**
  * @description The sign-in gateway method (one function type per method);
