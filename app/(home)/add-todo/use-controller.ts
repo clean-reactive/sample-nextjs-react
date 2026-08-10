@@ -1,7 +1,7 @@
 import type { Dispatch, FormEvent, RefObject, SetStateAction } from 'react';
 import { toast } from 'sonner';
-import { makeHomePageGateway } from '../gateway';
-import type { AddTodoFailureCode } from '../gateway.types';
+import { makeHomePageGateway } from '../gateway/gateway';
+import type { AddTodoFailureCode } from '../gateway/gateway.types';
 import type { AddTodoController } from './add-todo.types';
 
 export interface ControllerDependencies {

@@ -1,9 +1,9 @@
 import type { Dispatch } from 'react';
 import { toast } from 'sonner';
-import { makeHomePageGateway } from '../../gateway';
+import { makeHomePageGateway } from '../../gateway/gateway';
 import type { HomePageEvent, HomePageEntity } from '../../reducer';
 import type { TodoEntity } from '../../page.types';
-import type { ToggleTodoFailureCode } from '../../gateway.types';
+import type { ToggleTodoFailureCode } from '../../gateway/gateway.types';
 import type { TodoItemController } from './todo-item.types';
 
 export interface ControllerDependencies {

@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../_components/ui/dropdown-menu';
-import { makeHomePageGateway } from './gateway';
+import { makeHomePageGateway } from './gateway/gateway';
 
 export function UserMenu() {
   // controller

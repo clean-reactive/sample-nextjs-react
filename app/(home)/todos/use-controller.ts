@@ -1,8 +1,8 @@
 import type { Dispatch } from 'react';
 import { toast } from 'sonner';
-import { makeHomePageGateway } from '../gateway';
+import { makeHomePageGateway } from '../gateway/gateway';
 import type { HomePageEvent, HomePageEntity } from '../reducer';
-import type { BulkUpdateFailureCode } from '../gateway.types';
+import type { BulkUpdateFailureCode } from '../gateway/gateway.types';
 import type { TodosController } from './todos.types';
 
 export interface ControllerDependencies {
