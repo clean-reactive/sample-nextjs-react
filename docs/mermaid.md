@@ -12,7 +12,7 @@ controller/use-case/presenter arrangement.
 ```mermaid
 graph TD
 
-subgraph FE["Frontend"]
+subgraph FE["Client (Frontend)"]
   subgraph FB1["Boundary"]
     FUI["User Interface"]
   end
@@ -32,13 +32,13 @@ subgraph FE["Frontend"]
   FGI["Gateway &lt; I &gt;"]
 end
 
-subgraph FBI["Frontend–Backend Integration"]
+subgraph FBI["Client–Server Integration"]
   subgraph FB4["Boundary"]
     BFG["Gateway"]
   end
 end
 
-subgraph BE["Backend"]
+subgraph BE["Server (Backend)"]
   subgraph BB1["Boundary"]
     BC["Controller"]
     BP["Presenter"]
