@@ -1,6 +1,6 @@
 import { UnauthenticatedError } from '@/src/entities/errors/auth';
 import { InputParseError, UnknownError } from '@/src/entities/errors/common';
-import { ICreateTodoBffPresenter } from '@/src/interface-adapters/bff/todos/create-todo/contract';
+import { ICreateTodoBffPresenter } from '@/src/interface-adapters/bff/home/create-todo/contract';
 
 export const createTodoBffPresenter =
   (): ICreateTodoBffPresenter => async (output) => {

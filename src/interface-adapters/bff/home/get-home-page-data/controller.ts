@@ -2,7 +2,7 @@ import { GetTodosForUserInputData } from '@/src/application/use-cases/todos/get-
 import {
   IGetHomePageDataBffController,
   IGetHomePageDataBffUseCase,
-} from '@/src/interface-adapters/bff/todos/get-home-page-data/contract';
+} from '@/src/interface-adapters/bff/home/get-home-page-data/contract';
 
 export const getHomePageDataBffController =
   (

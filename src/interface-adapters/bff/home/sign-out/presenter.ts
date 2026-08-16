@@ -1,6 +1,6 @@
 import { UnauthenticatedError } from '@/src/entities/errors/auth';
 import { InputParseError, UnknownError } from '@/src/entities/errors/common';
-import { ISignOutBffPresenter } from '@/src/interface-adapters/bff/auth/sign-out/contract';
+import { ISignOutBffPresenter } from '@/src/interface-adapters/bff/home/sign-out/contract';
 
 export const signOutBffPresenter =
   (): ISignOutBffPresenter => async (output) => {

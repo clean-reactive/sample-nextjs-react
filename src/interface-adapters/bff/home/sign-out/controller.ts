@@ -2,7 +2,7 @@ import { SignOutInputData } from '@/src/application/use-cases/auth/sign-out.use-
 import {
   ISignOutBffController,
   ISignOutBffUseCase,
-} from '@/src/interface-adapters/bff/auth/sign-out/contract';
+} from '@/src/interface-adapters/bff/home/sign-out/contract';
 
 export const signOutBffController =
   (signOutUseCase: ISignOutBffUseCase): ISignOutBffController =>

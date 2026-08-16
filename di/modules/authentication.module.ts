@@ -13,12 +13,12 @@ import { signUpApiController } from '@/src/interface-adapters/api/auth/sign-up/c
 import { signUpApiPresenter } from '@/src/interface-adapters/api/auth/sign-up/presenter';
 import { signOutApiController } from '@/src/interface-adapters/api/auth/sign-out/controller';
 import { signOutApiPresenter } from '@/src/interface-adapters/api/auth/sign-out/presenter';
-import { signInBffController } from '@/src/interface-adapters/bff/auth/sign-in/controller';
-import { signInBffPresenter } from '@/src/interface-adapters/bff/auth/sign-in/presenter';
-import { signUpBffController } from '@/src/interface-adapters/bff/auth/sign-up/controller';
-import { signUpBffPresenter } from '@/src/interface-adapters/bff/auth/sign-up/presenter';
-import { signOutBffController } from '@/src/interface-adapters/bff/auth/sign-out/controller';
-import { signOutBffPresenter } from '@/src/interface-adapters/bff/auth/sign-out/presenter';
+import { signInBffController } from '@/src/interface-adapters/bff/sign-in/sign-in/controller';
+import { signInBffPresenter } from '@/src/interface-adapters/bff/sign-in/sign-in/presenter';
+import { signUpBffController } from '@/src/interface-adapters/bff/sign-up/sign-up/controller';
+import { signUpBffPresenter } from '@/src/interface-adapters/bff/sign-up/sign-up/presenter';
+import { signOutBffController } from '@/src/interface-adapters/bff/home/sign-out/controller';
+import { signOutBffPresenter } from '@/src/interface-adapters/bff/home/sign-out/presenter';
 import { signUpE2eController } from '@/src/interface-adapters/e2e/auth/sign-up/controller';
 import { signUpE2ePresenter } from '@/src/interface-adapters/e2e/auth/sign-up/presenter';
 

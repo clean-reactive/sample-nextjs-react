@@ -8,7 +8,7 @@ import { getInjection } from '@/di/container';
 import { BulkUpdateAction } from '../gateway.types';
 
 export const bulkUpdateAction: BulkUpdateAction = async (dirty, deleted) => {
-  const bulkUpdateController = getInjection('IBulkUpdateBffController');
+  const bulkUpdateController = getInjection('IBulkUpdateTodosBffController');
 
   const cookie = cookies().get(SESSION_COOKIE)?.value;
 

@@ -2,7 +2,7 @@ import { SignInInputData } from '@/src/application/use-cases/auth/sign-in.use-ca
 import {
   ISignInBffController,
   ISignInBffUseCase,
-} from '@/src/interface-adapters/bff/auth/sign-in/contract';
+} from '@/src/interface-adapters/bff/sign-in/sign-in/contract';
 
 export const signInBffController =
   (signInUseCase: ISignInBffUseCase): ISignInBffController =>

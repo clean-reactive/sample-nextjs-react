@@ -9,14 +9,14 @@ import { bulkUpdateUseCase } from '@/src/application/use-cases/todos/bulk-update
 import { getTodosForUserUseCase } from '@/src/application/use-cases/todos/get-todos-for-user.use-case';
 import { deleteTodoUseCase } from '@/src/application/use-cases/todos/delete-todo.use-case';
 
-import { createTodoBffController } from '@/src/interface-adapters/bff/todos/create-todo/controller';
-import { createTodoBffPresenter } from '@/src/interface-adapters/bff/todos/create-todo/presenter';
-import { toggleTodoBffController } from '@/src/interface-adapters/bff/todos/toggle-todo/controller';
-import { toggleTodoBffPresenter } from '@/src/interface-adapters/bff/todos/toggle-todo/presenter';
-import { bulkUpdateBffController } from '@/src/interface-adapters/bff/todos/bulk-update/controller';
-import { bulkUpdateBffPresenter } from '@/src/interface-adapters/bff/todos/bulk-update/presenter';
-import { getHomePageDataBffController } from '@/src/interface-adapters/bff/todos/get-home-page-data/controller';
-import { getHomePageDataBffPresenter } from '@/src/interface-adapters/bff/todos/get-home-page-data/presenter';
+import { createTodoBffController } from '@/src/interface-adapters/bff/home/create-todo/controller';
+import { createTodoBffPresenter } from '@/src/interface-adapters/bff/home/create-todo/presenter';
+import { toggleTodoBffController } from '@/src/interface-adapters/bff/home/toggle-todo/controller';
+import { toggleTodoBffPresenter } from '@/src/interface-adapters/bff/home/toggle-todo/presenter';
+import { bulkUpdateTodosBffController } from '@/src/interface-adapters/bff/home/bulk-update-todos/controller';
+import { bulkUpdateTodosBffPresenter } from '@/src/interface-adapters/bff/home/bulk-update-todos/presenter';
+import { getHomePageDataBffController } from '@/src/interface-adapters/bff/home/get-home-page-data/controller';
+import { getHomePageDataBffPresenter } from '@/src/interface-adapters/bff/home/get-home-page-data/presenter';
 import { getTodosForUserApiController } from '@/src/interface-adapters/api/todos/get-todos-for-user/controller';
 import { getTodosForUserApiPresenter } from '@/src/interface-adapters/api/todos/get-todos-for-user/presenter';
 import { createTodoApiController } from '@/src/interface-adapters/api/todos/create-todo/controller';
@@ -86,22 +86,22 @@ export function createTodosModule() {
     ]);
 
   todosModule
-    .bind(DI_SYMBOLS.IBulkUpdateBffPresenter)
-    .toHigherOrderFunction(bulkUpdateBffPresenter, []);
+    .bind(DI_SYMBOLS.IBulkUpdateTodosBffPresenter)
+    .toHigherOrderFunction(bulkUpdateTodosBffPresenter, []);
 
   todosModule
-    .bind(DI_SYMBOLS.IBulkUpdateBffUseCase)
+    .bind(DI_SYMBOLS.IBulkUpdateTodosBffUseCase)
     .toHigherOrderFunction(bulkUpdateUseCase, [
       DI_SYMBOLS.ITodosRepository,
       DI_SYMBOLS.ITransactionManagerService,
       DI_SYMBOLS.IAuthenticationService,
-      DI_SYMBOLS.IBulkUpdateBffPresenter,
+      DI_SYMBOLS.IBulkUpdateTodosBffPresenter,
     ]);
 
   todosModule
-    .bind(DI_SYMBOLS.IBulkUpdateBffController)
-    .toHigherOrderFunction(bulkUpdateBffController, [
-      DI_SYMBOLS.IBulkUpdateBffUseCase,
+    .bind(DI_SYMBOLS.IBulkUpdateTodosBffController)
+    .toHigherOrderFunction(bulkUpdateTodosBffController, [
+      DI_SYMBOLS.IBulkUpdateTodosBffUseCase,
     ]);
 
   todosModule

@@ -3,7 +3,7 @@ import {
   UnauthenticatedError,
 } from '@/src/entities/errors/auth';
 import { UnknownError } from '@/src/entities/errors/common';
-import { IGetHomePageDataBffPresenter } from '@/src/interface-adapters/bff/todos/get-home-page-data/contract';
+import { IGetHomePageDataBffPresenter } from '@/src/interface-adapters/bff/home/get-home-page-data/contract';
 
 export const getHomePageDataBffPresenter =
   (): IGetHomePageDataBffPresenter => async (output) => {

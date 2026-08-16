@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, Mocked } from 'vitest';
 
-import type { ISignInBffController } from '@/src/interface-adapters/bff/auth/sign-in/contract';
+import type { ISignInBffController } from '@/src/interface-adapters/bff/sign-in/sign-in/contract';
 import { createUsersRepositoryMock } from '@/src/infrastructure/repositories/users.repository.mock';
 import { createAuthenticationServiceMock } from '@/src/infrastructure/services/authentication.service.mock';
 import { IUsersRepository } from '@/src/application/repositories/users.repository.interface';
@@ -11,7 +11,7 @@ import { passwordFactory } from '@/src/entities/models/password.factory';
 import { cookieFactory } from '@/src/entities/models/cookie.factory';
 import { sessionFactory } from '@/src/entities/models/session.factory';
 import { TestBed } from '@/tests/integration/test-bed';
-import { signInBffController } from '@/src/interface-adapters/bff/auth/sign-in/controller';
+import { signInBffController } from '@/src/interface-adapters/bff/sign-in/sign-in/controller';
 
 type Context = {
   controller: ISignInBffController;

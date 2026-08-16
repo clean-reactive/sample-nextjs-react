@@ -1,11 +1,13 @@
 import { BulkUpdateInputData } from '@/src/application/use-cases/todos/bulk-update.use-case';
 import {
-  IBulkUpdateBffController,
-  IBulkUpdateBffUseCase,
-} from '@/src/interface-adapters/bff/todos/bulk-update/contract';
+  IBulkUpdateTodosBffController,
+  IBulkUpdateTodosBffUseCase,
+} from '@/src/interface-adapters/bff/home/bulk-update-todos/contract';
 
-export const bulkUpdateBffController =
-  (bulkUpdateUseCase: IBulkUpdateBffUseCase): IBulkUpdateBffController =>
+export const bulkUpdateTodosBffController =
+  (
+    bulkUpdateUseCase: IBulkUpdateTodosBffUseCase
+  ): IBulkUpdateTodosBffController =>
   async (dirty, deleted, sessionId) => {
     const inputData: BulkUpdateInputData = {
       dirty,

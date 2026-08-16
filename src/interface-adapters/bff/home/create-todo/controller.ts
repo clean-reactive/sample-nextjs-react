@@ -2,7 +2,7 @@ import { CreateTodoInputData } from '@/src/application/use-cases/todos/create-to
 import {
   ICreateTodoBffController,
   ICreateTodoBffUseCase,
-} from '@/src/interface-adapters/bff/todos/create-todo/contract';
+} from '@/src/interface-adapters/bff/home/create-todo/contract';
 
 export const createTodoBffController =
   (createTodoUseCase: ICreateTodoBffUseCase): ICreateTodoBffController =>

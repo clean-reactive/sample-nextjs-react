@@ -1,6 +1,6 @@
 import { AuthenticationError } from '@/src/entities/errors/auth';
 import { InputParseError, UnknownError } from '@/src/entities/errors/common';
-import { ISignInBffPresenter } from '@/src/interface-adapters/bff/auth/sign-in/contract';
+import { ISignInBffPresenter } from '@/src/interface-adapters/bff/sign-in/sign-in/contract';
 
 export const signInBffPresenter = (): ISignInBffPresenter => async (output) => {
   if (

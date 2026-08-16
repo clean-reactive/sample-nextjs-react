@@ -2,7 +2,7 @@ import { ToggleTodoInputData } from '@/src/application/use-cases/todos/toggle-to
 import {
   IToggleTodoBffController,
   IToggleTodoBffUseCase,
-} from '@/src/interface-adapters/bff/todos/toggle-todo/contract';
+} from '@/src/interface-adapters/bff/home/toggle-todo/contract';
 
 export const toggleTodoBffController =
   (toggleTodoUseCase: IToggleTodoBffUseCase): IToggleTodoBffController =>

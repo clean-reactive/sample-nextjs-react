@@ -7,10 +7,10 @@ import {
   NotFoundError,
   UnknownError,
 } from '@/src/entities/errors/common';
-import { IToggleTodoBffPresenter } from '@/src/interface-adapters/bff/todos/toggle-todo/contract';
+import { IBulkUpdateTodosBffPresenter } from '@/src/interface-adapters/bff/home/bulk-update-todos/contract';
 
-export const toggleTodoBffPresenter =
-  (): IToggleTodoBffPresenter => async (output) => {
+export const bulkUpdateTodosBffPresenter =
+  (): IBulkUpdateTodosBffPresenter => async (output) => {
     if (output instanceof InputParseError) {
       return { status: 'failure', code: 'invalid_data' };
     }
