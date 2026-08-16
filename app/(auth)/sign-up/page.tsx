@@ -55,7 +55,6 @@ export default function SignUpPage() {
                 id="username"
                 name="username"
                 type="text"
-                placeholder="nikolovlazar"
                 data-testid="username-input"
                 required
               />

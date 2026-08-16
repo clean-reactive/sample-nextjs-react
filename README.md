@@ -10,6 +10,17 @@ controller/use-case/presenter arrangement. The sample shows a concrete, working
 mapping of every architectural unit from both diagrams to idiomatic Next.js code
 — with unit, integration, and end-to-end tests for each level of composition.
 
+1. Explain Gateway/Driver role in details
+2. Describe React server component mental model (router->template->action)
+page is a framework/driver concern (maybe a diagram?)
+3. introduction should tell about Clean architecture applied in general, make
+link to a doc with business logic share. high level architecture?
+4. Add diagram for the public API (driver->conventional CA diagram)
+
+Ref to source commit <bdfaf312ed47ce8dce6647009eabcb2f1b6150d3>
+
+
+
 ![Client and Server Clean Reactive Architecture](docs/ca-client-server-nextjs.svg)
 
 <details>

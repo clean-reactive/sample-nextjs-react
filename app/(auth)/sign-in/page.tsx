@@ -80,7 +80,6 @@ export default function SignInPage() {
                 id="username"
                 name="username"
                 type="text"
-                placeholder="nikolovlazar"
                 data-testid="username-input"
                 required
               />
