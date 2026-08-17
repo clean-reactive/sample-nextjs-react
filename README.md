@@ -1,25 +1,19 @@
 # Clean Reactive Architecture — React + Next.js Sample
 
-A full-stack sample application that demonstrates
-[Clean Reactive Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md)
-implemented with React and Next.js.
+A full-stack React + Next.js sample application built on the
+[Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+concept, which covers both the client and the server parts:
 
-The frontend uses Clean Reactive Architecture and reaches the backend through
-its gateway. The backend follows the conventional Clean Architecture
-controller/use-case/presenter arrangement. The sample shows a concrete, working
-mapping of every architectural unit from both diagrams to idiomatic Next.js code
-— with unit, integration, and end-to-end tests for each level of composition.
+- The **client** is a reactive application and follows
+  [Clean Reactive Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md)
+  — the concept's implementation tailored for reactive applications.
+- The **server** is the core the client connects to and follows the
+  request-response Clean Architecture implementation, where control flows
+  through once per invocation and terminates.
 
-1. Explain Gateway/Driver role in details
-2. Describe React server component mental model (router->template->action)
-page is a framework/driver concern (maybe a diagram?)
-3. introduction should tell about Clean architecture applied in general, make
-link to a doc with business logic share. high level architecture?
-4. Add diagram for the public API (driver->conventional CA diagram)
-
-Ref to source commit <bdfaf312ed47ce8dce6647009eabcb2f1b6150d3>
-
-
+The sample shows a concrete, working mapping of every architectural unit from
+both diagrams to idiomatic Next.js code — with unit, integration, and end-to-end
+tests for each level of composition.
 
 ![Client and Server Clean Reactive Architecture](docs/ca-client-server-nextjs.svg)
 
@@ -118,6 +112,13 @@ class FB1,FB2,FB3,FB4,BB1,BB2,BB3 boundary;
 
 </details>
 
+1. Explain Gateway/Driver role in details
+2. Describe React server component mental model (router->template->action)
+page is a framework/driver concern (maybe a diagram?)
+4. Add diagram for the public API (driver->request-response CA diagram)
+
+Ref to source commit <bdfaf312ed47ce8dce6647009eabcb2f1b6150d3>
+
 ## Getting started
 
 Install dependencies:
@@ -183,7 +184,7 @@ npm run test:full     # everything
 | Controller                  | React hook returning callbacks       | `app/(home)/todos/use-controller.ts`, `add-todo/use-controller.ts`, `app/(auth)/sign-up/hooks/use-controller.ts` |
 | User interface              | React server / client components     | `app/(home)/page.tsx`, `todos/todos.tsx`, `todos/todo-item/todo-item.tsx`                                        |
 
-### Server (conventional Clean Architecture)
+### Server (request-response Clean Architecture)
 
 | Architectural unit                  | Location                                                                                                     |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------ |
