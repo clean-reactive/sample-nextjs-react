@@ -112,8 +112,7 @@ class FB1,FB2,FB3,FB4,BB1,BB2,BB3 boundary;
 
 </details>
 
-1. Explain Gateway/Driver role in details
-2. Add diagram for the public API (driver->request-response CA diagram)
+1. Add diagram for the public API (driver->request-response CA diagram)
 
 Ref to source commit <bdfaf312ed47ce8dce6647009eabcb2f1b6150d3>
 
@@ -174,7 +173,7 @@ npm run test:full     # everything
 
 | Architectural unit          | React / Next.js equivalent           | Location                                                                                                         |
 | --------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| Enterprise business entity  | Plain data type, server-provided     | `TodoEntity` in `app/(home)/page.types.ts`                                                                       |
+| Enterprise business entity  | Plain data type, server-interpolated | `TodoEntity` in `app/(home)/page.types.ts`                                                                       |
 | Application business entity | `useReducer` state machine + context | `app/(home)/reducer.ts` + `context.tsx`, `app/(auth)/*/reducer.ts`                                               |
 | Gateway interface           | TypeScript interface                 | `HomePageGateway` in `app/(home)/gateway/gateway.types.ts`, `app/(auth)/*/gateway/gateway.types.ts`              |
 | Gateway implementation      | Server Actions bundle                | `app/(home)/gateway/gateway.ts` + `gateway/actions/*.action.ts`                                                  |
@@ -244,6 +243,60 @@ CU -- "use case calls" --> GW
 GW -- "drives, via BFF controller" --> CORE
 GW -- "revalidatePath() restarts the loop" --> R
 ```
+
+## Gateway/Driver
+
+On the main diagram, the client–server integration boundary contains a single
+unit with two names — **Gateway/Driver** — because the unit belongs to both
+architectures at once and plays a different role in each.
+
+**Seen from the client, it is the gateway** — the unit that encapsulates access
+to an external resource. Each page declares what it needs from the outside world
+as its `gateway<I>` (`HomePageGateway` in `gateway/gateway.types.ts`), and the
+client core depends only on that interface: nothing in the entities,
+controllers, or use cases knows that the external resource happens to be a
+Next.js server.
+
+Note that the standalone Clean Reactive Architecture diagram places an
+**External Resource** unit behind the gateway — an opaque stand-in for whatever
+sits on the other side. The combined diagram omits that unit deliberately: this
+is an integrated full-stack application, so the other side is not opaque — it is
+the server, drawn in full right next to the client. The Gateway/Driver connects
+directly to the server's controller and view model; an External Resource node
+here would only hide the very structure the diagram exists to show.
+
+**Seen from the server, it is a driver** — a unit that exercises the core by
+providing input through controllers and consuming their output. The gateway's
+Server Actions call BFF controllers and return their view models; the server
+core neither knows nor cares that this particular driver is the client's gateway
+— the `api` (REST) and `e2e` (test) drivers exercise the same core through their
+own controller and presenter families.
+
+Two names on one unit may look like two responsibilities, but it is one:
+carrying a call across the client–server boundary. "Gateway" and "driver" are
+the names the two architectures give to that same job — each core sees exactly
+one role, and the duality exists only at the integration boundary, where the
+unit is the seam. The single responsibility holds because the unit does nothing
+but cross the boundary — which the next rule keeps true.
+
+**The Gateway/Driver prepares no data.** The unit is a bundle of Server Actions
+(`gateway/gateway.ts` assembles them into the `HomePageGateway` implementation),
+and each action does boundary work only: `toggle-todo.action.ts` reads the
+session cookie, calls the injected BFF controller, and returns the BFF view
+model as-is. Preparing input data is the BFF controller's job; shaping the
+response is the BFF presenter's job — every adaptation lives in the server's
+interface adapters, and every driver stays thin.
+
+**Why a Server Action?** It is the framework's native form for exactly this
+seam: a typed function the client calls and the framework transports — no
+hand-written route handler, no fetch client, no serialization code. Next.js also
+requires Server Action arguments and results to be plain serializable values, so
+the boundary rule — data crosses as data structures — is enforced mechanically
+rather than by convention. And a Server Action runs in frameworks & drivers,
+outside both cores, which is why the unit may read `cookies()` and finish with
+`revalidatePath()` — touching the router is framework territory, legal in the
+outermost ring — closing the pessimistic update loop described in the React
+server component mental model.
 
 ## Key design decisions
 
