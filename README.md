@@ -15,6 +15,92 @@ The sample shows a concrete, working mapping of every architectural unit from
 both diagrams to idiomatic Next.js code — with unit, integration, and end-to-end
 tests for each level of composition.
 
+## Getting started
+
+Install dependencies:
+
+```sh
+npm ci
+```
+
+Start the development server with the in-file backend (JSON files, no database
+required):
+
+```sh
+npm run dev
+```
+
+Or with the SQLite backend (Drizzle + libSQL, local database file):
+
+```sh
+npm run db:push       # create the schema on first run
+npm run dev:sqlite
+```
+
+Default environment values live in `.env`; create a git-ignored `.env.local` to
+override them. The `PERSISTENCE` variable selects which backend the DI container
+wires up.
+
+Run the tests:
+
+```sh
+npm test              # static checks (format, types, lint) + unit tests
+npm run test:e2e      # build + Playwright e2e against both backends
+npm run test:full     # everything
+```
+
+## Tech stack
+
+- [Next.js](https://nextjs.org/) 14 (App Router, Server Actions)
+- [React](https://react.dev/) 18
+- [TypeScript](https://www.typescriptlang.org/)
+- [Zod](https://zod.dev/) for entity models and input validation
+- [Drizzle ORM](https://orm.drizzle.team/) +
+  [libSQL](https://github.com/tursodatabase/libsql) (SQLite)
+- [Lucia](https://lucia-auth.com/) for session-based authentication
+- [@evyweb/ioctopus](https://github.com/Evyweb/ioctopus) as the DI container
+- [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+  (Radix UI)
+- [Vitest](https://vitest.dev/) for unit and integration tests
+- [Playwright](https://playwright.dev/) for end-to-end tests
+- [eslint-plugin-boundaries](https://github.com/javierbrea/eslint-plugin-boundaries)
+  for architecture boundary enforcement
+
+## Architecture mapping
+
+### Client (Clean Reactive Architecture)
+
+| Architectural unit          | React / Next.js equivalent           | Location                                                                                                         |
+| --------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Enterprise business entity  | Plain data type, server-interpolated | `TodoEntity` in `app/(home)/page.types.ts`                                                                       |
+| Application business entity | `useReducer` state machine + context | `app/(home)/reducer.ts` + `context.tsx`, `app/(auth)/*/reducer.ts`                                               |
+| Gateway interface           | TypeScript interface                 | `HomePageGateway` in `app/(home)/gateway/gateway.types.ts`, `app/(auth)/*/gateway/gateway.types.ts`              |
+| Gateway implementation      | Server Actions bundle                | `app/(home)/gateway/gateway.ts` + `gateway/actions/*.action.ts`                                                  |
+| Use case interactor         | React hook                           | `app/(auth)/sign-up/hooks/use-sign-up-use-case.ts`                                                               |
+| Presenter                   | React hook returning a view model    | `app/(home)/todos/use-presenter.ts`, `todo-item/use-presenter.ts`, `app/(auth)/sign-up/hooks/use-presenter.ts`   |
+| Controller                  | React hook returning callbacks       | `app/(home)/todos/use-controller.ts`, `add-todo/use-controller.ts`, `app/(auth)/sign-up/hooks/use-controller.ts` |
+| User interface              | React client components              | `app/(home)/todos/todos.tsx`, `todos/todo-item/todo-item.tsx`, `app/(auth)/sign-in/page.tsx`                     |
+
+Only the sign-up flow has an extracted use case hook: the simpler home-page
+controllers still orchestrate their gateway directly, following the
+[development methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md)
+— units start inlined and decompose when they grow.
+
+### Server (request-response Clean Architecture)
+
+| Architectural unit                  | Location                                                                                                                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entities                            | `src/entities/models` (Zod schemas + factories), `src/entities/errors`                                                                                                    |
+| Input boundary / Input, Output data | `contract.ts` next to each controller and presenter (`src/interface-adapters/**/contract.ts`)                                                                             |
+| Use case interactor                 | `src/application/use-cases/{auth,todos}`                                                                                                                                  |
+| Data access interface               | `src/application/repositories/*.interface.ts`, `src/application/services/*.interface.ts`                                                                                  |
+| Data access                         | `src/infrastructure/repositories`, `src/infrastructure/services` (`.sqlite` / `.in-file` / `.mock` variants)                                                              |
+| Controller / Presenter / View model | `src/interface-adapters/{api,bff,e2e}/**/{controller,presenter}.ts`                                                                                                       |
+| Database                            | `drizzle/` (schema + migrations) or JSON files (in-file backend)                                                                                                          |
+| Frameworks & drivers                | `app/api/**/route.ts` (REST), `app/**/gateway/actions` (Server Actions), `app/(home)/page.tsx` + `page.action.ts` (template + template action), `tests/e2e/e2e-driver.ts` |
+
+## UML diagram representing fullstack application architecture
+
 ![Client and Server Clean Reactive Architecture](docs/ca-client-server-nextjs.svg)
 
 <details>
@@ -111,90 +197,6 @@ class FB1,FB2,FB3,FB4,BB1,BB2,BB3 boundary;
 ```
 
 </details>
-
-## Getting started
-
-Install dependencies:
-
-```sh
-npm ci
-```
-
-Start the development server with the in-file backend (JSON files, no database
-required):
-
-```sh
-npm run dev
-```
-
-Or with the SQLite backend (Drizzle + libSQL, local database file):
-
-```sh
-npm run db:push       # create the schema on first run
-npm run dev:sqlite
-```
-
-Default environment values live in `.env`; create a git-ignored `.env.local` to
-override them. The `PERSISTENCE` variable selects which backend the DI container
-wires up.
-
-Run the tests:
-
-```sh
-npm test              # static checks (format, types, lint) + unit tests
-npm run test:e2e      # build + Playwright e2e against both backends
-npm run test:full     # everything
-```
-
-## Tech stack
-
-- [Next.js](https://nextjs.org/) 14 (App Router, Server Actions)
-- [React](https://react.dev/) 18
-- [TypeScript](https://www.typescriptlang.org/)
-- [Zod](https://zod.dev/) for entity models and input validation
-- [Drizzle ORM](https://orm.drizzle.team/) +
-  [libSQL](https://github.com/tursodatabase/libsql) (SQLite)
-- [Lucia](https://lucia-auth.com/) for session-based authentication
-- [@evyweb/ioctopus](https://github.com/Evyweb/ioctopus) as the DI container
-- [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
-  (Radix UI)
-- [Vitest](https://vitest.dev/) for unit and integration tests
-- [Playwright](https://playwright.dev/) for end-to-end tests
-- [eslint-plugin-boundaries](https://github.com/javierbrea/eslint-plugin-boundaries)
-  for architecture boundary enforcement
-
-## Architecture mapping
-
-### Client (Clean Reactive Architecture)
-
-| Architectural unit          | React / Next.js equivalent           | Location                                                                                                         |
-| --------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| Enterprise business entity  | Plain data type, server-interpolated | `TodoEntity` in `app/(home)/page.types.ts`                                                                       |
-| Application business entity | `useReducer` state machine + context | `app/(home)/reducer.ts` + `context.tsx`, `app/(auth)/*/reducer.ts`                                               |
-| Gateway interface           | TypeScript interface                 | `HomePageGateway` in `app/(home)/gateway/gateway.types.ts`, `app/(auth)/*/gateway/gateway.types.ts`              |
-| Gateway implementation      | Server Actions bundle                | `app/(home)/gateway/gateway.ts` + `gateway/actions/*.action.ts`                                                  |
-| Use case interactor         | React hook                           | `app/(auth)/sign-up/hooks/use-sign-up-use-case.ts`                                                               |
-| Presenter                   | React hook returning a view model    | `app/(home)/todos/use-presenter.ts`, `todo-item/use-presenter.ts`, `app/(auth)/sign-up/hooks/use-presenter.ts`   |
-| Controller                  | React hook returning callbacks       | `app/(home)/todos/use-controller.ts`, `add-todo/use-controller.ts`, `app/(auth)/sign-up/hooks/use-controller.ts` |
-| User interface              | React client components              | `app/(home)/todos/todos.tsx`, `todos/todo-item/todo-item.tsx`, `app/(auth)/sign-in/page.tsx`                     |
-
-Only the sign-up flow has an extracted use case hook: the simpler home-page
-controllers still orchestrate their gateway directly, following the
-[development methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md)
-— units start inlined and decompose when they grow.
-
-### Server (request-response Clean Architecture)
-
-| Architectural unit                  | Location                                                                                                                                                                  |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Entities                            | `src/entities/models` (Zod schemas + factories), `src/entities/errors`                                                                                                    |
-| Input boundary / Input, Output data | `contract.ts` next to each controller and presenter (`src/interface-adapters/**/contract.ts`)                                                                             |
-| Use case interactor                 | `src/application/use-cases/{auth,todos}`                                                                                                                                  |
-| Data access interface               | `src/application/repositories/*.interface.ts`, `src/application/services/*.interface.ts`                                                                                  |
-| Data access                         | `src/infrastructure/repositories`, `src/infrastructure/services` (`.sqlite` / `.in-file` / `.mock` variants)                                                              |
-| Controller / Presenter / View model | `src/interface-adapters/{api,bff,e2e}/**/{controller,presenter}.ts`                                                                                                       |
-| Database                            | `drizzle/` (schema + migrations) or JSON files (in-file backend)                                                                                                          |
-| Frameworks & drivers                | `app/api/**/route.ts` (REST), `app/**/gateway/actions` (Server Actions), `app/(home)/page.tsx` + `page.action.ts` (template + template action), `tests/e2e/e2e-driver.ts` |
 
 ## Key design decisions
 
