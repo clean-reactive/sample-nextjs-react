@@ -113,9 +113,7 @@ class FB1,FB2,FB3,FB4,BB1,BB2,BB3 boundary;
 </details>
 
 1. Explain Gateway/Driver role in details
-2. Describe React server component mental model (router->template->action)
-page is a framework/driver concern (maybe a diagram?)
-4. Add diagram for the public API (driver->request-response CA diagram)
+2. Add diagram for the public API (driver->request-response CA diagram)
 
 Ref to source commit <bdfaf312ed47ce8dce6647009eabcb2f1b6150d3>
 
@@ -176,26 +174,76 @@ npm run test:full     # everything
 
 | Architectural unit          | React / Next.js equivalent           | Location                                                                                                         |
 | --------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Enterprise business entity  | Plain data type, server-provided     | `TodoEntity` in `app/(home)/page.types.ts`                                                                       |
 | Application business entity | `useReducer` state machine + context | `app/(home)/reducer.ts` + `context.tsx`, `app/(auth)/*/reducer.ts`                                               |
 | Gateway interface           | TypeScript interface                 | `HomePageGateway` in `app/(home)/gateway/gateway.types.ts`, `app/(auth)/*/gateway/gateway.types.ts`              |
 | Gateway implementation      | Server Actions bundle                | `app/(home)/gateway/gateway.ts` + `gateway/actions/*.action.ts`                                                  |
 | Use case interactor         | React hook                           | `app/(auth)/sign-up/hooks/use-sign-up-use-case.ts`                                                               |
 | Presenter                   | React hook returning a view model    | `app/(home)/todos/use-presenter.ts`, `todo-item/use-presenter.ts`, `app/(auth)/sign-up/hooks/use-presenter.ts`   |
 | Controller                  | React hook returning callbacks       | `app/(home)/todos/use-controller.ts`, `add-todo/use-controller.ts`, `app/(auth)/sign-up/hooks/use-controller.ts` |
-| User interface              | React server / client components     | `app/(home)/page.tsx`, `todos/todos.tsx`, `todos/todo-item/todo-item.tsx`                                        |
+| User interface              | React client components              | `app/(home)/todos/todos.tsx`, `todos/todo-item/todo-item.tsx`, `app/(auth)/sign-in/page.tsx`                     |
 
 ### Server (request-response Clean Architecture)
 
-| Architectural unit                  | Location                                                                                                     |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Entities                            | `src/entities/models` (Zod schemas + factories), `src/entities/errors`                                       |
-| Input boundary / Input, Output data | `contract.ts` next to each controller and presenter (`src/interface-adapters/**/contract.ts`)                |
-| Use case interactor                 | `src/application/use-cases/{auth,todos}`                                                                     |
-| Data access interface               | `src/application/repositories/*.interface.ts`, `src/application/services/*.interface.ts`                     |
-| Data access                         | `src/infrastructure/repositories`, `src/infrastructure/services` (`.sqlite` / `.in-file` / `.mock` variants) |
-| Controller / Presenter / View model | `src/interface-adapters/{api,bff,e2e}/**/{controller,presenter}.ts`                                          |
-| Database                            | `drizzle/` (schema + migrations) or JSON files (in-file backend)                                             |
-| Frameworks & drivers                | `app/api/**/route.ts` (REST), `app/**/gateway/actions` (Server Actions), `tests/e2e/e2e-driver.ts`           |
+| Architectural unit                  | Location                                                                                                                                                              |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entities                            | `src/entities/models` (Zod schemas + factories), `src/entities/errors`                                                                                                |
+| Input boundary / Input, Output data | `contract.ts` next to each controller and presenter (`src/interface-adapters/**/contract.ts`)                                                                         |
+| Use case interactor                 | `src/application/use-cases/{auth,todos}`                                                                                                                              |
+| Data access interface               | `src/application/repositories/*.interface.ts`, `src/application/services/*.interface.ts`                                                                              |
+| Data access                         | `src/infrastructure/repositories`, `src/infrastructure/services` (`.sqlite` / `.in-file` / `.mock` variants)                                                          |
+| Controller / Presenter / View model | `src/interface-adapters/{api,bff,e2e}/**/{controller,presenter}.ts`                                                                                                   |
+| Database                            | `drizzle/` (schema + migrations) or JSON files (in-file backend)                                                                                                      |
+| Frameworks & drivers                | `app/api/**/route.ts` (REST), `app/**/gateway/actions` (Server Actions), `app/(home)/page.tsx` + `page.action.ts` (template + page action), `tests/e2e/e2e-driver.ts` |
+
+## React server component mental model
+
+The classic server-rendering flow is
+`router → handler (controller) → passive template`: the router calls a handler —
+a controller that drives the server core — and the handler prepares the data and
+interpolates it into a passive template. Next.js swaps the last two steps —
+`router → executable template → handler (controller)`: the router runs an
+executable template (`(home)/page.tsx`) along with its **template action**
+(`(home)/page.action.ts`); the action calls the handler — concretely a BFF
+controller driving the server core — and the executed template ends up with its
+data interpolated.
+
+All of this machinery — the router, the template, and its page action — is a
+**frameworks & drivers concern**: Next.js machinery that drives the server core
+and delivers its output to the client, and none of it is a unit of the client's
+Clean Reactive Architecture. The client core (entities, presenters, controllers,
+gateway) begins below the template, in the client components it renders.
+
+Interpolation is also how enterprise data reaches the client — and why the
+client's enterprise business entity carries no rules. `TodoEntity` values enter
+the client only as interpolated template data, and the client never mutates
+them: every change goes pessimistically through the gateway, the server core
+applies the enterprise business rules, and the Server Action ends with
+`revalidatePath()` — re-running `router → executable template → handler` with
+fresh data. Rules live where writes happen — server-side.
+
+A page that needs no server-prepared data skips the split entirely: the sign-in
+`page.tsx` is a plain client component — there the page slot is occupied
+directly by the user interface unit, with no template or page action.
+
+```mermaid
+graph TD
+
+R["Router"]
+T["Template (server component)"]
+A["Template action"]
+CORE["Server core"]
+CU["Client units (client components)"]
+GW["Gateway (Server Actions)"]
+
+R -- "executes" --> T
+T -- "awaits" --> A
+A -- "drives, via BFF controller" --> CORE
+T -- "interpolates entities" --> CU
+CU -- "use case calls" --> GW
+GW -- "drives, via BFF controller" --> CORE
+GW -- "revalidatePath() restarts the loop" --> R
+```
 
 ## Key design decisions
 
@@ -264,7 +312,8 @@ app                              # frameworks & drivers + the reactive client
 │   ├── todos                    # user interface + presenter + controller
 │   │   └── todo-item
 │   ├── context.tsx              # entity provider
-│   ├── page.tsx
+│   ├── page.action.ts           # page action (frameworks & drivers)
+│   ├── page.tsx                 # template (frameworks & drivers)
 │   └── reducer.ts               # application business entity
 ├── api                          # REST driver (route handlers)
 └── _components                  # shared UI kit (shadcn/ui)
