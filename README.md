@@ -259,6 +259,11 @@ A page that needs no server-prepared data skips the split entirely: the sign-in
 `page.tsx` is a plain client component — there the page slot is occupied
 directly by the user interface unit, with no template or template action.
 
+![Next.js entities loop](docs/ca-nextjs-entities-loop.svg)
+
+<details>
+  <summary>mermaid</summary>
+
 ```mermaid
 graph TD
 
@@ -267,16 +272,18 @@ T["Template (server component)"]
 A["Template action"]
 CORE["Server core"]
 CU["Client units (client components)"]
-GW["Gateway (Server Actions)"]
+GW["Gateway (Server Action)"]
 
-R -- "executes" --> T
-T -- "awaits" --> A
-A -- "drives, via BFF controller" --> CORE
-T -- "interpolates entities" --> CU
-CU -- "use case calls" --> GW
-GW -- "drives, via BFF controller" --> CORE
-GW -- "revalidatePath() restarts the loop" --> R
+R -- "executes (1)" --> T
+T -- "awaits (2)" --> A
+A -- "drives, via BFF controller (3)" --> CORE
+T -- "interpolates entities (4)" --> CU
+CU -- "use case calls (5)" --> GW
+GW -- "drives, via BFF controller (6)" --> CORE
+GW -- "revalidatePath() restarts the loop (7)" --> R
 ```
+
+</details>
 
 ## Gateway/Driver
 
