@@ -182,6 +182,11 @@ npm run test:full     # everything
 | Controller                  | React hook returning callbacks       | `app/(home)/todos/use-controller.ts`, `add-todo/use-controller.ts`, `app/(auth)/sign-up/hooks/use-controller.ts` |
 | User interface              | React client components              | `app/(home)/todos/todos.tsx`, `todos/todo-item/todo-item.tsx`, `app/(auth)/sign-in/page.tsx`                     |
 
+Only the sign-up flow has an extracted use case hook: the simpler home-page
+controllers still orchestrate their gateway directly, following the
+[development methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md)
+— units start inlined and decompose when they grow.
+
 ### Server (request-response Clean Architecture)
 
 | Architectural unit                  | Location                                                                                                                                                              |
@@ -194,6 +199,37 @@ npm run test:full     # everything
 | Controller / Presenter / View model | `src/interface-adapters/{api,bff,e2e}/**/{controller,presenter}.ts`                                                                                                   |
 | Database                            | `drizzle/` (schema + migrations) or JSON files (in-file backend)                                                                                                      |
 | Frameworks & drivers                | `app/api/**/route.ts` (REST), `app/**/gateway/actions` (Server Actions), `app/(home)/page.tsx` + `page.action.ts` (template + page action), `tests/e2e/e2e-driver.ts` |
+
+## Key design decisions
+
+**Page state as a reducer-backed application business entity.** `HomePageEntity`
+is a state machine (`view` / `bulk` / `updating`) with events and validity rules
+— invalid transitions are simply ignored by the reducer. It persists across use
+case calls, is provided through React context, and is the single state both
+presenters read and controllers write, keeping the flow unidirectional.
+
+**Pessimistic updates keep enterprise rules server-side.** The client never
+mutates enterprise data: every change goes through the gateway, the server
+applies the business rules, and a fresh render brings the result back. Rules
+live where writes happen — so the client-side enterprise entity is a rule-less
+projection, and there is no optimistic-update machinery to reconcile. The
+mechanism is described in the
+[React server component mental model](#react-server-component-mental-model).
+
+**Server Actions as the client's gateway.** Each page declares its gateway
+interface client-side (`gateway.types.ts`); Next.js Server Actions implement it
+as a plain pass-through — the `bff` presenters return data already shaped for
+the consuming page, so the gateway carries no adaptation logic. The boundary is
+crossed as plain data structures — `FormData` in,
+`{ status: 'success' | 'failure', code }` out — so the client maps failure codes
+to messages without ever seeing server internals. The full role of this unit is
+covered in [Gateway/Driver](#gatewaydriver).
+
+**Three drivers over one server core.** The same use cases, entities, and
+repository interfaces are driven by three interface-adapter families: `api`
+(REST route handlers), `bff` (Server Actions, shaped for specific pages), and
+`e2e` (the test driver). Each family has its own controllers and presenters; the
+core does not know which driver is calling.
 
 ## React server component mental model
 
@@ -297,52 +333,6 @@ outside both cores, which is why the unit may read `cookies()` and finish with
 `revalidatePath()` — touching the router is framework territory, legal in the
 outermost ring — closing the pessimistic update loop described in the React
 server component mental model.
-
-## Key design decisions
-
-**Page state as a reducer-backed application business entity.** `HomePageEntity`
-is a state machine (`view` / `bulk` / `updating`) with events and validity rules
-— invalid transitions are simply ignored by the reducer. It persists across use
-case calls, is provided through React context, and is the single state both
-presenters read and controllers write, keeping the flow unidirectional.
-
-**Server Actions as the client's gateway.** Each page declares its gateway
-interface client-side (`gateway.types.ts`); Next.js Server Actions implement it.
-The client–server boundary is crossed as plain data structures — `FormData` in,
-`{ status: 'success' | 'failure', code }` out — so the client maps failure codes
-to messages without ever seeing server internals.
-
-**Three drivers over one server core.** The same use cases, entities, and
-repository interfaces are driven by three interface-adapter families: `api`
-(REST route handlers), `bff` (Server Actions, shaped for specific pages), and
-`e2e` (the test driver). Each family has its own controllers and presenters; the
-core does not know which driver is calling.
-
-**BFF-shaped responses keep client gateways thin.** The `bff` presenters return
-data already shaped for the page that consumes it, so the client-side gateway is
-a plain pass-through of Server Actions with no adaptation logic.
-
-**Swappable persistence behind interfaces.** The `PERSISTENCE` environment
-variable selects which implementations the ioctopus DI container wires up:
-SQLite (Drizzle + libSQL + Lucia) or in-file JSON. Use cases depend only on the
-repository and service interfaces, so the swap requires no structural change —
-and the e2e suite runs against both backends.
-
-**Units start inlined and decompose when they grow.** Following the
-[development methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md),
-the sign-up flow has an extracted use case hook, while the simpler home-page
-controllers still orchestrate their gateway directly — decomposition happens
-when a unit earns it, not upfront.
-
-**Boundaries enforced at lint time.** `eslint-plugin-boundaries` encodes the
-diagram's dependency rules (e.g., the web layer may import only entities and DI;
-use cases may import only interfaces and entities), so a violation of the
-architecture fails `npm run test:lint`.
-
-**Testing pyramid mirrors the architecture.** Unit tests target individual
-units, integration tests compose controller → use case → infrastructure, and
-Playwright e2e tests drive the full path through the user interface — each level
-in its own `tests/` directory.
 
 ## Folder structure
 
