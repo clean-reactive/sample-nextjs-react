@@ -112,10 +112,6 @@ class FB1,FB2,FB3,FB4,BB1,BB2,BB3 boundary;
 
 </details>
 
-1. Add diagram for the public API (driver->request-response CA diagram)
-
-Ref to source commit <bdfaf312ed47ce8dce6647009eabcb2f1b6150d3>
-
 ## Getting started
 
 Install dependencies:
@@ -189,16 +185,16 @@ controllers still orchestrate their gateway directly, following the
 
 ### Server (request-response Clean Architecture)
 
-| Architectural unit                  | Location                                                                                                                                                              |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Entities                            | `src/entities/models` (Zod schemas + factories), `src/entities/errors`                                                                                                |
-| Input boundary / Input, Output data | `contract.ts` next to each controller and presenter (`src/interface-adapters/**/contract.ts`)                                                                         |
-| Use case interactor                 | `src/application/use-cases/{auth,todos}`                                                                                                                              |
-| Data access interface               | `src/application/repositories/*.interface.ts`, `src/application/services/*.interface.ts`                                                                              |
-| Data access                         | `src/infrastructure/repositories`, `src/infrastructure/services` (`.sqlite` / `.in-file` / `.mock` variants)                                                          |
-| Controller / Presenter / View model | `src/interface-adapters/{api,bff,e2e}/**/{controller,presenter}.ts`                                                                                                   |
-| Database                            | `drizzle/` (schema + migrations) or JSON files (in-file backend)                                                                                                      |
-| Frameworks & drivers                | `app/api/**/route.ts` (REST), `app/**/gateway/actions` (Server Actions), `app/(home)/page.tsx` + `page.action.ts` (template + page action), `tests/e2e/e2e-driver.ts` |
+| Architectural unit                  | Location                                                                                                                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entities                            | `src/entities/models` (Zod schemas + factories), `src/entities/errors`                                                                                                    |
+| Input boundary / Input, Output data | `contract.ts` next to each controller and presenter (`src/interface-adapters/**/contract.ts`)                                                                             |
+| Use case interactor                 | `src/application/use-cases/{auth,todos}`                                                                                                                                  |
+| Data access interface               | `src/application/repositories/*.interface.ts`, `src/application/services/*.interface.ts`                                                                                  |
+| Data access                         | `src/infrastructure/repositories`, `src/infrastructure/services` (`.sqlite` / `.in-file` / `.mock` variants)                                                              |
+| Controller / Presenter / View model | `src/interface-adapters/{api,bff,e2e}/**/{controller,presenter}.ts`                                                                                                       |
+| Database                            | `drizzle/` (schema + migrations) or JSON files (in-file backend)                                                                                                          |
+| Frameworks & drivers                | `app/api/**/route.ts` (REST), `app/**/gateway/actions` (Server Actions), `app/(home)/page.tsx` + `page.action.ts` (template + template action), `tests/e2e/e2e-driver.ts` |
 
 ## Key design decisions
 
@@ -243,7 +239,7 @@ executable template (`(home)/page.tsx`) along with its **template action**
 controller driving the server core — and the executed template ends up with its
 data interpolated.
 
-All of this machinery — the router, the template, and its page action — is a
+All of this machinery — the router, the template, and its template action — is a
 **frameworks & drivers concern**: Next.js machinery that drives the server core
 and delivers its output to the client, and none of it is a unit of the client's
 Clean Reactive Architecture. The client core (entities, presenters, controllers,
@@ -259,7 +255,7 @@ fresh data. Rules live where writes happen — server-side.
 
 A page that needs no server-prepared data skips the split entirely: the sign-in
 `page.tsx` is a plain client component — there the page slot is occupied
-directly by the user interface unit, with no template or page action.
+directly by the user interface unit, with no template or template action.
 
 ```mermaid
 graph TD
@@ -355,7 +351,7 @@ app                              # frameworks & drivers + the reactive client
 │   ├── todos                    # user interface + presenter + controller
 │   │   └── todo-item
 │   ├── context.tsx              # entity provider
-│   ├── page.action.ts           # page action (frameworks & drivers)
+│   ├── page.action.ts           # template action (frameworks & drivers)
 │   ├── page.tsx                 # template (frameworks & drivers)
 │   └── reducer.ts               # application business entity
 ├── api                          # REST driver (route handlers)
@@ -389,3 +385,14 @@ tests
 
 - [Clean Reactive Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md)
 - [Development Methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md)
+
+## TODO
+
+- Add diagram for the public API (driver → request-response CA diagram)
+
+## Credits
+
+This sample is based on
+[nikolovlazar/nextjs-clean-architecture](https://github.com/nikolovlazar/nextjs-clean-architecture)
+at commit
+[`bdfaf312`](https://github.com/nikolovlazar/nextjs-clean-architecture/tree/bdfaf312ed47ce8dce6647009eabcb2f1b6150d3).
