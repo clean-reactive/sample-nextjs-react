@@ -101,6 +101,9 @@ controllers still orchestrate their gateway directly, following the
 
 ## UML diagram representing fullstack application architecture
 
+The diagram below shows client and server side by side, connected through the
+Gateway/Driver seam.
+
 ![Client and Server Clean Reactive Architecture](docs/ca-client-server-nextjs.svg)
 
 <details>
@@ -198,6 +201,69 @@ class FB1,FB2,FB3,FB4,BB1,BB2,BB3 boundary;
 
 </details>
 
+The diagram below shows the `api` driver exercising the same server core as the
+client.
+
+![Public API request-response Clean Architecture](docs/ca-server-api-nextjs.svg)
+
+<details>
+  <summary>mermaid</summary>
+
+```mermaid
+graph TD
+
+DR["Driver"]
+
+subgraph BB1["Boundary"]
+  SC["Controller"]
+  SP["Presenter"]
+  SVM["View Model &lt; DS &gt;"]
+end
+
+SID["Input Data &lt; DS &gt;"]
+SIB["Input Boundary &lt; I &gt;"]
+SOD["Output Data &lt; DS &gt;"]
+SOB["Output Boundary &lt; I &gt;"]
+SUC["Use Case Interactor"]
+
+subgraph BB2["Boundary"]
+  SDAI["Data Access Interface &lt; I &gt;"]
+  SDA["Data Access"]
+  SDB["Database"]
+end
+
+subgraph BB3["Boundary"]
+  SE["Entities"]
+end
+
+%% implementation relations
+SP -. implements .-> SOB
+SUC -. implements .-> SIB
+SDA -. implements .-> SDAI
+
+%% driver dependency relations
+DR -- depends --> SC
+DR -- depends --> SVM
+
+%% backend dependency relations
+SC -- depends --> SIB
+SC -- depends --> SID
+SP -- depends --> SVM
+SP -- depends --> SOD
+SUC -- depends --> SID
+SUC -- depends --> SOB
+SUC -- depends --> SOD
+SUC -- depends --> SDAI
+SUC -- depends --> SE
+SDAI -- depends --> SE
+SDA -- depends --> SDB
+
+classDef boundary fill:none,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5;
+class BB1,BB2,BB3 boundary;
+```
+
+</details>
+
 ## Key design decisions
 
 **Page state as a reducer-backed application business entity.** `HomePageEntity`
@@ -247,17 +313,14 @@ and delivers its output to the client, and none of it is a unit of the client's
 Clean Reactive Architecture. The client core (entities, presenters, controllers,
 gateway) begins below the template, in the client components it renders.
 
-Interpolation is also how enterprise data reaches the client — and why the
+**Interpolation** is also how enterprise data reaches the client — and why the
 client's enterprise business entity carries no rules. `TodoEntity` values enter
 the client only as interpolated template data, and the client never mutates
 them: every change goes pessimistically through the gateway, the server core
 applies the enterprise business rules, and the Server Action ends with
-`revalidatePath()` — re-running `router → executable template → handler` with
-fresh data. Rules live where writes happen — server-side.
-
-A page that needs no server-prepared data skips the split entirely: the sign-in
-`page.tsx` is a plain client component — there the page slot is occupied
-directly by the user interface unit, with no template or template action.
+`revalidatePath()` — re-running
+`router → executable template → handler (controller)` with fresh data. Rules
+live where writes happen — server-side.
 
 ![Next.js entities loop](docs/ca-nextjs-entities-loop.svg)
 
@@ -284,6 +347,10 @@ GW -- "revalidatePath() restarts the loop (7)" --> R
 ```
 
 </details>
+
+A page that needs no server-prepared data skips the split entirely: the sign-in
+`page.tsx` is a plain client component — there the page slot is occupied
+directly by the user interface unit, with no template or template action.
 
 ## Gateway/Driver
 
@@ -394,10 +461,6 @@ tests
 
 - [Clean Reactive Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md)
 - [Development Methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md)
-
-## TODO
-
-- Add diagram for the public API (driver → request-response CA diagram)
 
 ## Credits
 
