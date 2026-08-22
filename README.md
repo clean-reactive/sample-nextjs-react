@@ -297,15 +297,18 @@ core does not know which driver is calling.
 
 ## React server component mental model
 
-The classic server-rendering flow is
-`router → handler (controller) → passive template`: the router calls a handler —
-a controller that drives the server core — and the handler prepares the data and
-interpolates it into a passive template. Next.js swaps the last two steps —
-`router → executable template → handler (controller)`: the router runs an
-executable template (`(home)/page.tsx`) along with its **template action**
-(`(home)/page.action.ts`); the action calls the handler — concretely a BFF
+Anyone who has written `router → controller → passive template` in PHP, Node, or
+similar will recognize React Server Components as that same flow with the last
+two steps swapped.
+
+In the classic flow the router calls a handler — a controller that drives the
+server core — and the handler prepares the data and pushes it into a passive
+template. Next.js inverts the last two steps —
+`router → executable template → handler (controller)`: the router executes a
+template (`(home)/page.tsx`), the template awaits its **template action**
+(`(home)/page.action.ts`), the action calls the handler — concretely a BFF
 controller driving the server core — and the executed template ends up with its
-data interpolated.
+data interpolated. The template pulls its data instead of having it pushed in.
 
 All of this machinery — the router, the template, and its template action — is a
 **frameworks & drivers concern**: Next.js machinery that drives the server core
@@ -314,11 +317,12 @@ Clean Reactive Architecture. The client core (entities, presenters, controllers,
 gateway) begins below the template, in the client components it renders.
 
 **Interpolation** is also how enterprise data reaches the client — and why the
-client's enterprise business entity carries no rules. `TodoEntity` values enter
-the client only as interpolated template data, and the client never mutates
-them: every change goes pessimistically through the gateway, the server core
-applies the enterprise business rules, and the Server Action ends with
-`revalidatePath()` — re-running
+client's enterprise business entity is a rule-less projection. Props crossing
+into a client component must be plain serializable values, so behaviour cannot
+cross: `TodoEntity` values enter the client as interpolated template data and
+nothing more. The client never mutates them — every change goes pessimistically
+through the gateway, the server core applies the enterprise business rules, and
+the Server Action ends with `revalidatePath()` — re-running
 `router → executable template → handler (controller)` with fresh data. Rules
 live where writes happen — server-side.
 
@@ -347,6 +351,16 @@ GW -- "revalidatePath() restarts the loop (7)" --> R
 ```
 
 </details>
+
+The diagram is drawn at page level because that is where this sample uses it,
+but it describes **any server component**: a nested server component may await
+its own action and interpolate into its own client units, and the same loop
+applies one level down. Only the root is executed by the router — every other
+node is executed by its parent, which renders it.
+
+Arrow 7 is the one step that does not recurse: `revalidatePath()` re-enters at
+the root and re-runs the whole route, not just the node whose gateway call
+triggered it.
 
 A page that needs no server-prepared data skips the split entirely: the sign-in
 `page.tsx` is a plain client component — there the page slot is occupied
