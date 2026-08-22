@@ -297,9 +297,9 @@ core does not know which driver is calling.
 
 ## React server component mental model
 
-Anyone who has written `router → controller → passive template` in PHP, Node, or
-similar will recognize React Server Components as that same flow with the last
-two steps swapped.
+Anyone who has written `router → handler (controller) → passive template` in
+PHP, Node, or similar will recognize React Server Components as that same flow
+with the last two steps swapped.
 
 In the classic flow the router calls a handler — a controller that drives the
 server core — and the handler prepares the data and pushes it into a passive
@@ -410,7 +410,7 @@ response is the BFF presenter's job — every adaptation lives in the server's
 interface adapters, and every driver stays thin.
 
 <details>
-  <summary>**Why a Server Action?**</summary>
+  <summary><b>Why a Server Action?</b></summary>
 
 It is the framework's native form for exactly this seam: a typed function the
 client calls and the framework transports — no hand-written route handler, no
@@ -426,6 +426,22 @@ server component mental model.
 </details>
 
 ## Folder structure
+
+Clean Architecture concept does not define a file or folder structure — it
+describes units and their dependencies. Organizing them into files is a separate
+organizational decision, taken per project.
+
+**The client is vertical-sliced.** Each route folder owns its own units — its
+application business entity, its gateway, and its user interface with the
+presenters and controllers those components need.
+
+**The server is layered.** `src` is grouped by the layers of the concept's
+circle diagram — _enterprise business rules_ (`entities`), _application business
+rules_ (`application`), _interface adapters_ (`interface-adapters` for
+controllers and presenters, `infrastructure` for the gateways behind them). The
+outermost ring, _frameworks & drivers_, has no folder in `src` — it is `app`
+itself (Server Actions, API handlers), `drizzle` (schema + migrations), and
+`tests/e2e`, with `di` wiring them to the core.
 
 ```console
 app                              # the client (Clean Reactive Architecture)
@@ -453,17 +469,17 @@ app                              # the client (Clean Reactive Architecture)
 └── _components                  # shared UI kit (shadcn/ui)
 
 src                              # the server core (request-response Clean Architecture)
-├── entities
+├── entities                     # enterprise business rules layer
 │   ├── models                   # enterprise business entities (Zod) + factories
 │   └── errors
-├── application
+├── application                  # application business rules layer
 │   ├── use-cases                # use case interactors
 │   ├── repositories             # data access interfaces
 │   └── services                 # service interfaces
-├── infrastructure               # data access implementations
+├── infrastructure               # interface adapters layer (data access implementations)
 │   ├── repositories             # *.sqlite / *.in-file / *.mock
 │   └── services
-└── interface-adapters
+└── interface-adapters           # interface adapters layer (controllers/presenters)
     ├── api                      # controllers/presenters for the REST driver
     ├── bff                      # controllers/presenters for the server-action driver
     └── e2e                      # controllers/presenters for the e2e test driver
