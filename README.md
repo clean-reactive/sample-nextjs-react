@@ -1,4 +1,4 @@
-# Clean Reactive Architecture — React + Next.js Sample
+# Clean Architecture — React + Next.js Sample
 
 A full-stack React + Next.js sample application built on the
 [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
@@ -409,25 +409,30 @@ model as-is. Preparing input data is the BFF controller's job; shaping the
 response is the BFF presenter's job — every adaptation lives in the server's
 interface adapters, and every driver stays thin.
 
-**Why a Server Action?** It is the framework's native form for exactly this
-seam: a typed function the client calls and the framework transports — no
-hand-written route handler, no fetch client, no serialization code. Next.js also
-requires Server Action arguments and results to be plain serializable values, so
-the boundary rule — data crosses as data structures — is enforced mechanically
-rather than by convention. And a Server Action runs in frameworks & drivers,
-outside both cores, which is why the unit may read `cookies()` and finish with
+<details>
+  <summary>**Why a Server Action?**</summary>
+
+It is the framework's native form for exactly this seam: a typed function the
+client calls and the framework transports — no hand-written route handler, no
+fetch client, no serialization code. Next.js also requires Server Action
+arguments and results to be plain serializable values, so the boundary rule —
+data crosses as data structures — is enforced mechanically rather than by
+convention. And a Server Action runs in frameworks & drivers, outside both
+cores, which is why the unit may read `cookies()` and finish with
 `revalidatePath()` — touching the router is framework territory, legal in the
 outermost ring — closing the pessimistic update loop described in the React
 server component mental model.
 
+</details>
+
 ## Folder structure
 
 ```console
-app                              # frameworks & drivers + the reactive client
+app                              # the client (Clean Reactive Architecture)
 ├── (auth)
 │   ├── sign-in
 │   │   ├── gateway              # gateway <I> + server-action implementation
-│   │   ├── page.tsx             # user interface
+│   │   ├── page.tsx
 │   │   └── reducer.ts           # application business entity
 │   └── sign-up
 │       ├── gateway
@@ -447,7 +452,7 @@ app                              # frameworks & drivers + the reactive client
 ├── api                          # REST driver (route handlers)
 └── _components                  # shared UI kit (shadcn/ui)
 
-src                              # the server core (Clean Architecture)
+src                              # the server core (request-response Clean Architecture)
 ├── entities
 │   ├── models                   # enterprise business entities (Zod) + factories
 │   └── errors
