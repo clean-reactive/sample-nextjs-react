@@ -1,4 +1,4 @@
-# Clean Architecture — React + Next.js Sample
+# Clean Architecture — Next.js + React Sample
 
 A full-stack React + Next.js sample application built on the
 [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
